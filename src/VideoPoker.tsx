@@ -265,7 +265,9 @@ export default function VideoPoker() {
                   </div>
                 </div>
               </button>
-              {stage === "draw" && heldFlag && <div className="held-label">HELD</div>}
+              <div className="held-slot">
+                <div className={`held-label ${stage === "draw" && heldFlag ? "visible" : ""}`}>HELD</div>
+              </div>
               <button
                 className={`machine-btn hold-btn ${heldFlag?"active":""}`}
                 onClick={()=>toggleHold(i)}
@@ -281,13 +283,10 @@ export default function VideoPoker() {
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
-      {/* Bottom machine-style button bar */}
+  {/* Bottom machine-style button bar */}
       <section className="machine-bar">
         <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
         <div className="spacer" />
-        {stage === "payout" && winDetails && (
-          <button className="machine-btn" onClick={() => setShowWin(true)}>SHOW WIN</button>
-        )}
         <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
         <button
           className="machine-btn primary"
