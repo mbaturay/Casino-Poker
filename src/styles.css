@@ -32,9 +32,9 @@ h1{margin:0;font-size:28px}
 /* header corner spacer */
 .modal.modal-paytable .pt-corner{background:transparent;border:none;border-radius:0}
 /* status-like weight, casino yellow text with a subtle dark outline for contrast */
-.modal.modal-paytable .pt-colhead{background:transparent;border:none;color:var(--text);font-weight:500;text-align:center;padding:6px 4px}
-.modal.modal-paytable .pt-hand{background:transparent;border:none;color:var(--text);font-weight:500;letter-spacing:.02em;padding:6px 8px}
-.modal.modal-paytable .pt-cell{background:transparent;border:none;color:var(--text);font-weight:400;text-align:center;padding:6px 4px}
+.modal.modal-paytable .pt-colhead{background:transparent;border:none;color:var(--text);font-weight:300;text-align:center;padding:6px 4px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
+.modal.modal-paytable .pt-hand{background:transparent;border:none;color:var(--text);font-weight:300;letter-spacing:.02em;padding:6px 8px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
+.modal.modal-paytable .pt-cell{background:transparent;border:none;color:var(--text);font-weight:300;text-align:center;padding:6px 4px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
 /* active bet column gets a red band; keep row separators visible on top */
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
@@ -52,7 +52,7 @@ h1{margin:0;font-size:28px}
 .card[disabled], .card[disabled]:focus, .card[disabled]:focus-visible{box-shadow:none !important}
 /* card images managed via .card3d faces */
 /* 3D flip */
-.card .card3d{perspective:900px;height:280px;aspect-ratio:2.5/3.5;width:auto}
+.card .card3d{perspective:900px;height:285px;aspect-ratio:2.5/3.5;width:auto}
 .card .card3d-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s ease}
 .card .card3d.is-flipped .card3d-inner{transform:rotateY(180deg)}
 .card .card-face{position:absolute;inset:0;backface-visibility:hidden;display:block;height:100%;width:100%;object-fit:contain;margin:0}
@@ -85,7 +85,7 @@ code{color:#cbd5e1}
 .hold-btn{min-width:90px}
 .machine-bar{display:flex;align-items:center;gap:16px;justify-content:center;margin-top:28px}
 .machine-bar .spacer{flex:1;max-width:180px}
-.machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:800;letter-spacing:.5px}
+.machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:5px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:400;letter-spacing:.5px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
 .machine-btn.primary{background:var(--primary);color:white}
 .machine-btn:disabled{opacity:.55;cursor:not-allowed}
 .machine-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2d2d2d, 0 3px 8px rgba(0,0,0,.35)}
