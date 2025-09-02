@@ -88,6 +88,7 @@ export default function VideoPoker() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [flipped, setFlipped] = useState<boolean[]>([false,false,false,false,false]);
   const flipTimers = useRef<number[]>([]);
+  const [showOutOfCredits, setShowOutOfCredits] = useState(false);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -108,8 +109,30 @@ export default function VideoPoker() {
     try { localStorage.setItem("vp-bet", String(bet)); } catch {}
   }, [bet]);
 
+  // Show out-of-credits modal when no credits and we're idle on bet stage
+  useEffect(() => {
+    if (stage === "bet" && credits <= 0) {
+      setShowOutOfCredits(true);
+      setMessage("Out of credits. Start a new game.");
+    }
+  }, [credits, stage]);
+
+  const startNewGame = () => {
+    clearTimers();
+    setShowOutOfCredits(false);
+    setCredits(200);
+    setBet(5);
+    setDeck(shuffle(buildDeck()));
+    setHand([]);
+    setHeld([false,false,false,false,false]);
+    setFlipped([false,false,false,false,false]);
+    setStage("bet");
+    setMessage("Place your bet and deal");
+  };
+
   const onDeal = () => {
     if (stage !== "bet") return;
+  if (credits <= 0) { setShowOutOfCredits(true); setMessage("Out of credits. Start a new game."); return; }
   // Ensure no residual focus outline on cards when starting a new deal
   (document.activeElement as HTMLElement | null)?.blur?.();
     clearTimers();
@@ -208,6 +231,11 @@ export default function VideoPoker() {
     const onKey = (e: KeyboardEvent) => {
       const active = document.activeElement as HTMLElement | null;
       if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) return;
+      if (showOutOfCredits && e.code === "Space") {
+        e.preventDefault();
+        startNewGame();
+        return;
+      }
       if (e.code === "Space") {
         e.preventDefault();
         if (stage === "bet") onDeal();
@@ -219,7 +247,7 @@ export default function VideoPoker() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [stage, hand, held, bet, credits]);
+  }, [stage, hand, held, bet, credits, showOutOfCredits]);
 
   const cardImage = (c?: Card) => c ? `/cards/${cardCode(c)}.svg` : "/cards/2B.svg";
   const canDeal = stage==="bet" && credits>=bet;
@@ -327,6 +355,17 @@ export default function VideoPoker() {
             <p>{winDetails.name} — You won {winDetails.payout} credit{winDetails.payout===1?"":"s"}.</p>
             <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
               <button className="btn" onClick={() => setShowWin(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showOutOfCredits && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Out of credits">
+          <div className="modal">
+            <h2>Out of credits</h2>
+            <p>You have no credits left. Start a new game to continue.</p>
+            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
+              <button className="btn success" onClick={startNewGame}>NEW GAME (+200)</button>
             </div>
           </div>
         </div>
