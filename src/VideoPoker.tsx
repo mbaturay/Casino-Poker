@@ -88,6 +88,8 @@ export default function VideoPoker() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [flipped, setFlipped] = useState<boolean[]>([false,false,false,false,false]);
   const flipTimers = useRef<number[]>([]);
+  const [overlayMsg, setOverlayMsg] = useState<string | null>(null);
+  const overlayTimer = useRef<number | null>(null);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -117,6 +119,8 @@ export default function VideoPoker() {
   setWinDetails(null);
   setShowWin(false);
   setFlipped([false,false,false,false,false]);
+  if (overlayTimer.current) { clearTimeout(overlayTimer.current); overlayTimer.current = null; }
+  setOverlayMsg(null);
     if (deck.length < 10) setDeck(shuffle(buildDeck()));
   };
 
@@ -183,7 +187,10 @@ export default function VideoPoker() {
       if (payout > 0) {
         setCredits(c => c + payout);
         setWinDetails({ name: ev.name, payout });
-        setMessage(`Player won ${payout} credit${payout===1?"":"s"}.`);
+        setMessage(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}.`);
+        setOverlayMsg(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}`);
+        if (overlayTimer.current) clearTimeout(overlayTimer.current);
+        overlayTimer.current = window.setTimeout(() => { setOverlayMsg(null); overlayTimer.current = null; }, 1800);
         setShowWin(false);
       } else {
         setWinDetails(null);
@@ -279,6 +286,9 @@ export default function VideoPoker() {
             </div>
           );
         })}
+        {overlayMsg && (
+          <div className="win-banner" aria-live="polite">{overlayMsg}</div>
+        )}
       </section>
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
