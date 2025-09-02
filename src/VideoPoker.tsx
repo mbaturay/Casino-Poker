@@ -288,7 +288,7 @@ export default function VideoPoker() {
         <div className="spacer" />
         <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
         <button
-          className="machine-btn primary"
+          className="machine-btn primary dealdraw-btn"
           onClick={onDealOrDraw}
           disabled={stage==="bet" ? !canDeal : false}
         >

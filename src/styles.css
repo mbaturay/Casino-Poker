@@ -66,6 +66,7 @@ code{color:#cbd5e1}
 .machine-btn.primary{background:linear-gradient(#4653ff,#7d86ff);color:white}
 .machine-btn:disabled{opacity:.55;cursor:not-allowed}
 .machine-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2d2d2d, 0 3px 8px rgba(0,0,0,.35)}
+.dealdraw-btn{min-width:92px}
 .machine-btn .line1,.machine-btn .line2{display:block;line-height:1}
 .machine-btn .line1{font-size:14px}
 .machine-btn .line2{font-size:12px;border-top:2px solid #0b1220;margin-top:2px;padding-top:2px}
