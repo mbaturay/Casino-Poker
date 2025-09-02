@@ -64,3 +64,6 @@ code{color:#cbd5e1}
 .machine-btn .line2{font-size:12px;border-top:2px solid #0b1220;margin-top:2px;padding-top:2px}
 .machine-btn.active{outline:2px solid var(--accent)}
 
+/* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
+.hold-btn{display:none}
+
