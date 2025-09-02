@@ -39,7 +39,7 @@ h1{margin:0;font-size:28px}
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
-.cards{display:flex;justify-content:center;gap:16px;margin:12px 0 22px}
+.cards{display:flex;justify-content:space-between;gap:0;margin:12px 0 22px;width:100%}
 @keyframes statusFade{0%{opacity:0}60%{opacity:1}100%{opacity:.95}}
 .card-col{display:flex;flex-direction:column;align-items:center;gap:8px}
 .card-col .held-slot{height:22px;display:flex;align-items:center;justify-content:center}
