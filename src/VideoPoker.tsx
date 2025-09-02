@@ -329,19 +329,22 @@ export default function VideoPoker() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Paytable">
           <div className="modal">
             <h2>Paytable</h2>
-            <section className="paytable">
-              {( ["Royal Flush","Straight Flush","Four of a Kind","Full House","Flush","Straight","Three of a Kind","Two Pair","Jacks or Better"] as HandRank[])
-                .map(name => (
-                <div key={name} className={`pt-item ${result?.name===name ? "pt-active" : ""}`}>
-                  <div className="pt-name">{name}</div>
-                  <div className="pt-row">
+            <div className="paytable-board" role="table" aria-label="Video Poker Paytable">
+              <div className="pt-grid">
+                <div className="pt-corner" aria-hidden="true"></div>
+                {([1,2,3,4,5] as const).map(n => (
+                  <div key={`h-${n}`} className={`pt-colhead ${bet===n?"pt-col-active":""}`}>{n}</div>
+                ))}
+                {(["Royal Flush","Straight Flush","Four of a Kind","Full House","Flush","Straight","Three of a Kind","Two Pair","Jacks or Better"] as HandRank[]).map(name => (
+                  <>
+                    <div key={`hn-${name}`} className={`pt-hand ${result?.name===name?"pt-row-active":""}`}>{name}</div>
                     {PAYTABLE[name].map((v,i)=>(
-                      <span key={i} className={`pt-chip ${bet===i+1 ? "pt-chip-active":""}`}>{i+1}:{v}</span>
+                      <div key={`c-${name}-${i}`} className={`pt-cell ${bet===i+1?"pt-col-active":""}`}>{v}</div>
                     ))}
-                  </div>
-                </div>
-              ))}
-            </section>
+                  </>
+                ))}
+              </div>
+            </div>
             <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
               <button className="btn" onClick={() => setShowPaytable(false)}>Close</button>
             </div>

@@ -15,13 +15,15 @@ h1{margin:0;font-size:28px}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 14px;min-width:110px}
 .label{font-size:11px;opacity:.7;text-transform:uppercase}
 .value{font-weight:700;font-size:20px}
-.paytable{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:16px}
-.pt-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:10px}
-.pt-active{outline:2px solid var(--accent)}
-.pt-name{font-weight:600;margin-bottom:6px}
-.pt-row{display:flex;flex-wrap:wrap;gap:6px}
-.pt-chip{border:1px solid var(--border);border-radius:10px;padding:2px 8px;font-size:12px;opacity:.85}
-.pt-chip-active{background:#263248}
+/* paytable modal redesign */
+.paytable-board{background:#2b2b2b;border:4px solid #1e22ff;box-shadow:inset 0 0 0 4px #ffd700, inset 0 0 0 6px #1e22ff;border-radius:10px;padding:10px}
+.pt-grid{display:grid;grid-template-columns: 1.5fr repeat(5, 1fr);gap:6px;align-items:stretch}
+.pt-corner{background:#333;border:2px solid #ffd700;border-radius:4px}
+.pt-colhead{background:#3b3b3b;border:2px solid #ffd700;border-radius:4px;color:#ffea00;font-weight:900;text-align:center;padding:6px 4px}
+.pt-hand{background:#3b3b3b;border:2px solid #ffd700;border-radius:4px;color:#ffea00;font-weight:900;letter-spacing:.02em;padding:6px 8px}
+.pt-cell{background:#3b3b3b;border:2px solid #ffd700;border-radius:4px;color:#ffea00;font-weight:900;text-align:center;padding:6px 4px}
+.pt-col-active{background:#d71920 !important;color:#ffea00}
+.pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
 .cards{display:flex;justify-content:center;gap:16px;margin:12px 0 22px}
 @keyframes statusFade{0%{opacity:0}60%{opacity:1}100%{opacity:.95}}
