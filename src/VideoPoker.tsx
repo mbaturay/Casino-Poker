@@ -330,18 +330,14 @@ export default function VideoPoker() {
           <div className="modal modal-paytable">
             <h2>Paytable</h2>
             <div className="paytable-board" role="table" aria-label="Video Poker Paytable">
-              <div className="pt-grid">
-                <div className="pt-corner" aria-hidden="true"></div>
-                {([1,2,3,4,5] as const).map(n => (
-                  <div key={`h-${n}`} className={`pt-colhead ${bet===n?"pt-col-active":""}`}>{n}</div>
-                ))}
+              <div className="pt-grid" role="rowgroup">
                 {(["Royal Flush","Straight Flush","Four of a Kind","Full House","Flush","Straight","Three of a Kind","Two Pair","Jacks or Better"] as HandRank[]).map(name => (
-                  <>
-                    <div key={`hn-${name}`} className={`pt-hand ${result?.name===name?"pt-row-active":""}`}>{name}</div>
+                  <div className={`pt-row ${result?.name===name?"pt-row-active":""}`} key={`row-${name}`} role="row">
+                    <div className="pt-hand" role="rowheader">{name}</div>
                     {PAYTABLE[name].map((v,i)=>(
-                      <div key={`c-${name}-${i}`} className={`pt-cell ${bet===i+1?"pt-col-active":""}`}>{v}</div>
+                      <div key={`c-${name}-${i}`} className={`pt-cell ${bet===i+1?"pt-col-active":""}`} role="cell">{v}</div>
                     ))}
-                  </>
+                  </div>
                 ))}
               </div>
             </div>
