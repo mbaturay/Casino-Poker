@@ -111,6 +111,8 @@ export default function VideoPoker() {
 
   const onDeal = () => {
     if (stage !== "bet") return;
+  // Ensure no residual focus outline on cards when starting a new deal
+  (document.activeElement as HTMLElement | null)?.blur?.();
     clearTimers();
     // Clear any win banner when starting a new deal
     setOverlayMsg(null);

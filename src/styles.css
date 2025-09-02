@@ -30,6 +30,8 @@ h1{margin:0;font-size:28px}
 .card.held{box-shadow:0 0 0 4px var(--accent)}
 /* use an inset focus ring to avoid any layout/position shift */
 .card:focus-visible{outline:none;box-shadow:0 0 0 3px #60a5fa inset}
+/* don't show focus ring for disabled cards or when not in draw stage */
+.card[disabled], .card[disabled]:focus, .card[disabled]:focus-visible{box-shadow:none !important}
 /* card images managed via .card3d faces */
 /* 3D flip */
 .card .card3d{perspective:900px;height:260px;aspect-ratio:2.5/3.5;width:auto}
