@@ -293,7 +293,7 @@ export default function VideoPoker() {
                 </div>
               </button>
               <div className="held-slot">
-                <div className={`held-label ${heldFlag ? "visible" : ""}`}>HELD</div>
+                <div className={`held-label ${heldFlag ? "visible" : ""}`}>HOLD</div>
               </div>
               <button
                 className={`machine-btn hold-btn ${heldFlag?"active":""}`}
