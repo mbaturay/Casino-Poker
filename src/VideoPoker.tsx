@@ -186,7 +186,7 @@ export default function VideoPoker() {
       if (payout > 0) {
         setCredits(c => c + payout);
         setWinDetails({ name: ev.name, payout });
-        setMessage(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}.`);
+        setMessage(`You win ${payout} credit${payout===1?"":"s"} with a ${ev.name}.`);
         setShowWin(false);
       } else {
         setWinDetails(null);
