@@ -312,9 +312,9 @@ export default function VideoPoker() {
 
   {/* Bottom machine-style button bar */}
       <section className="machine-bar">
-        <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
-        <div className="spacer" />
-        <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
+  <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
+  <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
+  <div className="spacer" />
         <button
           className="machine-btn primary dealdraw-btn"
           onClick={onDealOrDraw}
