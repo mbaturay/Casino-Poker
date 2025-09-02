@@ -32,9 +32,9 @@ h1{margin:0;font-size:28px}
 /* header corner spacer */
 .modal.modal-paytable .pt-corner{background:transparent;border:none;border-radius:0}
 /* status-like weight, casino yellow text with a subtle dark outline for contrast */
-.modal.modal-paytable .pt-colhead{background:transparent;border:none;color:var(--text);font-weight:600;text-align:center;padding:6px 4px}
-.modal.modal-paytable .pt-hand{background:transparent;border:none;color:var(--text);font-weight:600;letter-spacing:.02em;padding:6px 8px}
-.modal.modal-paytable .pt-cell{background:transparent;border:none;color:var(--text);font-weight:600;text-align:center;padding:6px 4px}
+.modal.modal-paytable .pt-colhead{background:transparent;border:none;color:var(--text);font-weight:500;text-align:center;padding:6px 4px}
+.modal.modal-paytable .pt-hand{background:transparent;border:none;color:var(--text);font-weight:500;letter-spacing:.02em;padding:6px 8px}
+.modal.modal-paytable .pt-cell{background:transparent;border:none;color:var(--text);font-weight:400;text-align:center;padding:6px 4px}
 /* active bet column gets a red band; keep row separators visible on top */
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
