@@ -263,7 +263,7 @@ export default function VideoPoker() {
                   </div>
                 </div>
               </button>
-              {heldFlag && <div className="held-label">HELD</div>}
+              {stage === "draw" && heldFlag && <div className="held-label">HELD</div>}
               <button
                 className={`machine-btn hold-btn ${heldFlag?"active":""}`}
                 onClick={()=>toggleHold(i)}
