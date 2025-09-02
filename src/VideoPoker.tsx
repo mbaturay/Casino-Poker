@@ -244,7 +244,7 @@ export default function VideoPoker() {
 
       {/* Paytable moved into modal, accessible via CTA */}
 
-  <div className="status">{message}</div>
+  <div className="status" key={message}>{message}</div>
   <section className="cards">
         {Array.from({length:5}).map((_,i)=>{
           const c = hand[i];

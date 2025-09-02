@@ -19,18 +19,24 @@ h1{margin:0;font-size:28px}
 .pt-row{display:flex;flex-wrap:wrap;gap:6px}
 .pt-chip{border:1px solid var(--border);border-radius:10px;padding:2px 8px;font-size:12px;opacity:.85}
 .pt-chip-active{background:#263248}
-.status{margin:14px 0 10px;text-align:center;opacity:.9}
+.status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
 .cards{display:flex;justify-content:center;gap:16px;margin:12px 0 22px}
+@keyframes statusFade{0%{opacity:0}60%{opacity:1}100%{opacity:.95}}
 .card-col{display:flex;flex-direction:column;align-items:center;gap:8px}
 .card-col .held-slot{height:22px;display:flex;align-items:center;justify-content:center}
 .card-col .held-label{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center;opacity:0;transition:opacity .12s ease}
 .card-col .held-label.visible{opacity:1}
 .card{position:relative;border-radius:12px;overflow:hidden;transition:transform .1s ease;padding:0;background:transparent;border:none;appearance:none;-webkit-appearance:none}
-.card.held{box-shadow:0 0 0 4px var(--accent)}
-/* use an inset focus ring to avoid any layout/position shift */
-.card:focus-visible{outline:none;box-shadow:0 0 0 3px #60a5fa inset}
+/* Smooth fade rings via pseudo-elements */
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 4px var(--accent);opacity:0;transition:opacity .18s ease;pointer-events:none}
+.card.held::after{opacity:1}
+/* Focus ring as inset pseudo-element */
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 3px #60a5fa inset;opacity:0;transition:opacity .14s ease;pointer-events:none}
+.card:focus-visible{outline:none}
+.card:focus-visible::before{opacity:1}
 /* don't show focus ring for disabled cards or when not in draw stage */
 .card[disabled], .card[disabled]:focus, .card[disabled]:focus-visible{box-shadow:none !important}
+.card[disabled]::before, .card[disabled]::after{opacity:0 !important}
 /* card images managed via .card3d faces */
 /* 3D flip */
 .card .card3d{perspective:900px;height:260px;aspect-ratio:2.5/3.5;width:auto}
@@ -47,7 +53,7 @@ h1{margin:0;font-size:28px}
 .btn.primary{background:#4f46e5}
 .btn.warn{background:var(--warn)}
 .btn.success{background:var(--ok)}
-.status{margin-top:6px;text-align:center;opacity:.9}
+/* (removed duplicate .status rule) */
 .hint{margin-top:8px;text-align:center;color:var(--muted);font-size:12px}
 code{color:#cbd5e1}
 
