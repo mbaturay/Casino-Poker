@@ -327,7 +327,7 @@ export default function VideoPoker() {
   
       {showPaytable && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Paytable">
-          <div className="modal">
+          <div className="modal modal-paytable">
             <h2>Paytable</h2>
             <div className="paytable-board" role="table" aria-label="Video Poker Paytable">
               <div className="pt-grid">

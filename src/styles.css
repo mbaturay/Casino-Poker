@@ -61,6 +61,10 @@ code{color:#cbd5e1}
 .modal{background:#0f172a;border:1px solid var(--border);border-radius:14px;max-width:420px;width:100%;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
 .modal h2{margin:0 0 8px 0}
 .modal p{margin:0 0 8px 0}
+/* wider paytable modal */
+.modal.modal-paytable{max-width:900px}
+.modal.modal-paytable .paytable-board{padding:14px}
+.modal.modal-paytable .pt-grid{gap:8px}
 
 /* machine-style controls */
 .hold-row{display:flex;justify-content:center;gap:16px;margin-top:8px}
