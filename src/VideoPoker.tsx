@@ -256,7 +256,7 @@ export default function VideoPoker() {
   return (
     <div className="wrap">
       <header className="top">
-        <h1>Jacks or Better</h1>
+        <img src="public/img/JaclsOrBetter.png" alt="Jacks or Better" className="logo" />
         <div className="bank">
           <div className="panel">
             <div className="label">Credits</div>
