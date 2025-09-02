@@ -88,7 +88,6 @@ export default function VideoPoker() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [flipped, setFlipped] = useState<boolean[]>([false,false,false,false,false]);
   const flipTimers = useRef<number[]>([]);
-  const [overlayMsg, setOverlayMsg] = useState<string | null>(null);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -114,8 +113,7 @@ export default function VideoPoker() {
   // Ensure no residual focus outline on cards when starting a new deal
   (document.activeElement as HTMLElement | null)?.blur?.();
     clearTimers();
-    // Clear any win banner when starting a new deal
-    setOverlayMsg(null);
+  // Ensure any prior banners are cleared (we no longer render a banner)
     if (bet < 1 || bet > 5) return;
     if (credits < bet) { setMessage("Not enough credits"); return; }
     setCredits(c => c - bet);
@@ -189,7 +187,6 @@ export default function VideoPoker() {
         setCredits(c => c + payout);
         setWinDetails({ name: ev.name, payout });
         setMessage(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}.`);
-        setOverlayMsg(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}`);
         setShowWin(false);
       } else {
         setWinDetails(null);
@@ -247,7 +244,8 @@ export default function VideoPoker() {
 
       {/* Paytable moved into modal, accessible via CTA */}
 
-      <section className="cards">
+  <div className="status">{message}</div>
+  <section className="cards">
         {Array.from({length:5}).map((_,i)=>{
           const c = hand[i];
           const heldFlag = held[i];
@@ -280,9 +278,6 @@ export default function VideoPoker() {
             </div>
           );
         })}
-        {overlayMsg && (
-          <div className="win-banner" aria-live="polite">{overlayMsg}</div>
-        )}
       </section>
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
@@ -301,7 +296,7 @@ export default function VideoPoker() {
         </button>
       </section>
 
-  <footer className="status">{message}</footer>
+  
       {showPaytable && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Paytable">
           <div className="modal">

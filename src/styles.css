@@ -19,9 +19,8 @@ h1{margin:0;font-size:28px}
 .pt-row{display:flex;flex-wrap:wrap;gap:6px}
 .pt-chip{border:1px solid var(--border);border-radius:10px;padding:2px 8px;font-size:12px;opacity:.85}
 .pt-chip-active{background:#263248}
-.cards{display:flex;justify-content:center;gap:16px;margin:18px 0}
-.cards{position:relative}
-.win-banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#1039ff;color:#ffea00;border:4px solid #0019a8;border-radius:8px;padding:6px 14px;font-weight:900;letter-spacing:.08em;text-shadow:0 1px 0 #0019a8, 0 2px 0 #0019a8;box-shadow:0 6px 18px rgba(0,0,0,.45);white-space:nowrap}
+.status{margin:8px 0 6px;text-align:center;opacity:.9}
+.cards{display:flex;justify-content:center;gap:16px;margin:12px 0 18px}
 .card-col{display:flex;flex-direction:column;align-items:center;gap:8px}
 .card-col .held-slot{height:22px;display:flex;align-items:center;justify-content:center}
 .card-col .held-label{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center;opacity:0;transition:opacity .12s ease}
