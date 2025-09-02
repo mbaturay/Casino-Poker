@@ -16,28 +16,26 @@ h1{margin:0;font-size:28px}
 .label{font-size:11px;opacity:.7;text-transform:uppercase}
 .value{font-weight:700;font-size:20px}
 /* paytable modal redesign */
-.paytable-board{
+.modal.modal-paytable .paytable-board{
 	/* paytable theme colors */
-	--pt-blue:#0a2bff; /* vivid royal blue */
 	--pt-yellow:#fff200; /* bright casino yellow */
-	--pt-red:#d6001c; /* hot red for max bet column */
-	--pt-gray:#22262e; /* deep slate background */
-	background:var(--pt-gray);
-	border:6px solid var(--pt-blue);
-	box-shadow:inset 0 0 0 4px var(--pt-yellow);
-	border-radius:10px;
-	padding:10px
+	--pt-red:#d6001c; /* hot red for active bet column */
+	background:transparent; /* no frame */
+	border:none;
+	box-shadow:none;
+	border-radius:0;
+	padding:0;
 }
-.pt-grid{display:grid;grid-template-columns: 1.6fr repeat(5, 1fr);column-gap:0;row-gap:6px;align-items:stretch}
+.modal.modal-paytable .pt-grid{display:grid;grid-template-columns: 1.6fr repeat(5, 1fr);column-gap:0;row-gap:6px;align-items:stretch}
 /* header corner spacer */
-.pt-corner{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);border-radius:0}
+.modal.modal-paytable .pt-corner{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);border-radius:0}
 /* status-like weight, casino yellow text with a subtle dark outline for contrast */
-.pt-colhead{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);color:var(--pt-yellow);font-weight:600;text-align:center;padding:6px 4px;text-shadow:0 1px 0 #000, 0 0 2px #000}
-.pt-hand{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);color:var(--pt-yellow);font-weight:600;letter-spacing:.02em;padding:6px 8px;text-shadow:0 1px 0 #000, 0 0 2px #000}
-.pt-cell{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);color:var(--pt-yellow);font-weight:600;text-align:center;padding:6px 4px;text-shadow:0 1px 0 #000, 0 0 2px #000}
+.modal.modal-paytable .pt-colhead{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);color:var(--pt-yellow);font-weight:600;text-align:center;padding:6px 4px;text-shadow:0 1px 0 #000, 0 0 2px #000}
+.modal.modal-paytable .pt-hand{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);color:var(--pt-yellow);font-weight:600;letter-spacing:.02em;padding:6px 8px;text-shadow:0 1px 0 #000, 0 0 2px #000}
+.modal.modal-paytable .pt-cell{background:transparent;border:none;border-bottom:2px solid var(--pt-yellow);color:var(--pt-yellow);font-weight:600;text-align:center;padding:6px 4px;text-shadow:0 1px 0 #000, 0 0 2px #000}
 /* active bet column gets a red band; keep row separators visible on top */
-.pt-col-active{background:var(--pt-red) !important;color:var(--pt-yellow)}
-.pt-row-active{outline:2px solid var(--accent)}
+.modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--pt-yellow)}
+.modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
 .cards{display:flex;justify-content:center;gap:16px;margin:12px 0 22px}
 @keyframes statusFade{0%{opacity:0}60%{opacity:1}100%{opacity:.95}}
