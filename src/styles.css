@@ -23,8 +23,9 @@ h1{margin:0;font-size:28px}
 .card-col{display:flex;flex-direction:column;align-items:center;gap:8px}
 .card-col .held-label{margin-top:6px;font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center}
 .card{position:relative;border-radius:12px;overflow:hidden;transition:transform .1s ease;padding:0;background:transparent;border:none;appearance:none;-webkit-appearance:none}
-.card.held{box-shadow:0 0 0 4px var(--accent);transform:translateY(-2px)}
-.card:focus-visible{outline:2px solid #60a5fa}
+.card.held{box-shadow:0 0 0 4px var(--accent)}
+/* use an inset focus ring to avoid any layout/position shift */
+.card:focus-visible{outline:none;box-shadow:0 0 0 3px #60a5fa inset}
 /* card images managed via .card3d faces */
 /* 3D flip */
 .card .card3d{perspective:900px;height:260px;aspect-ratio:2.5/3.5;width:auto}

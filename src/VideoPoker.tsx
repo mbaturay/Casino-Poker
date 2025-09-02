@@ -150,6 +150,8 @@ export default function VideoPoker() {
 
   const onDraw = () => {
     if (stage !== "draw") return;
+  // Remove focus ring from any focused card to keep symmetry
+  (document.activeElement as HTMLElement | null)?.blur?.();
     clearTimers();
     const d = [...deck];
   const replacements = hand.map((_, i) => held[i] ? undefined : d.shift()!);
@@ -253,7 +255,7 @@ export default function VideoPoker() {
               <button
                 onClick={()=>toggleHold(i)}
                 disabled={!canDraw}
-                className={`card ${heldFlag?"held":""}`}
+                className={`card ${stage === "draw" && heldFlag?"held":""}`}
                 aria-pressed={heldFlag}
               >
                 <div className={`card3d ${flipped[i] ? 'is-flipped' : ''}`}>
