@@ -123,8 +123,10 @@ export default function VideoPoker() {
   let sourceDeck = deck;
   if (sourceDeck.length < 10) sourceDeck = shuffle(buildDeck());
   const d = [...sourceDeck];
-    const newHand = d.splice(0,5);
-    setStage("draw");
+  const newHand = d.splice(0,5);
+  // Clear any previous holds BEFORE switching to draw so no held rings flash
+  setHeld([false,false,false,false,false]);
+  setStage("draw");
     setMessage("Select cards to HOLD, then DRAW");
     // If prior round left cards face-up, flip them to back first for a clean animation
     const hadFaceUp = hand.length === 5 && flipped.some(v => v);
@@ -135,7 +137,6 @@ export default function VideoPoker() {
     const tSet = window.setTimeout(() => {
       setDeck(d);
       setHand(newHand);
-      setHeld([false,false,false,false,false]);
       for (let i = 0; i < 5; i++) {
         const id = window.setTimeout(() => {
           setFlipped(f => f.map((v, idx) => idx === i ? true : v));
