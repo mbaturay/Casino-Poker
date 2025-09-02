@@ -262,8 +262,8 @@ export default function VideoPoker() {
                     <img className="card-face card-front" src={c? cardImage(c) : "/cards/2B.svg"} alt={c? cardCode(c) : "Back"} />
                   </div>
                 </div>
-                {canDraw && <div className="hold">{heldFlag? "HELD" : "tap to HOLD"}</div>}
               </button>
+              {heldFlag && <div className="held-label">HELD</div>}
               <button
                 className={`machine-btn hold-btn ${heldFlag?"active":""}`}
                 onClick={()=>toggleHold(i)}
