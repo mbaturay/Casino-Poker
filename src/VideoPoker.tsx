@@ -89,7 +89,6 @@ export default function VideoPoker() {
   const [flipped, setFlipped] = useState<boolean[]>([false,false,false,false,false]);
   const flipTimers = useRef<number[]>([]);
   const [overlayMsg, setOverlayMsg] = useState<string | null>(null);
-  const overlayTimer = useRef<number | null>(null);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -110,28 +109,19 @@ export default function VideoPoker() {
     try { localStorage.setItem("vp-bet", String(bet)); } catch {}
   }, [bet]);
 
-  const resetRound = () => {
-  clearTimers();
-    setHeld([false,false,false,false,false]);
-    setHand([]);
-    setMessage("Place your bet and deal");
-    setStage("bet");
-  setWinDetails(null);
-  setShowWin(false);
-  setFlipped([false,false,false,false,false]);
-  if (overlayTimer.current) { clearTimeout(overlayTimer.current); overlayTimer.current = null; }
-  setOverlayMsg(null);
-    if (deck.length < 10) setDeck(shuffle(buildDeck()));
-  };
-
   const onDeal = () => {
     if (stage !== "bet") return;
+    // Clear any win banner when starting a new deal
+    setOverlayMsg(null);
     if (bet < 1 || bet > 5) return;
     if (credits < bet) { setMessage("Not enough credits"); return; }
     setCredits(c => c - bet);
-    const d = [...deck];
+  // Ensure we have enough cards for a full round (up to 10 cards)
+  let sourceDeck = deck;
+  if (sourceDeck.length < 10) sourceDeck = shuffle(buildDeck());
+  const d = [...sourceDeck];
     const newHand = d.splice(0,5);
-    setDeck(d);
+  setDeck(d);
     setHand(newHand);
     setHeld([false,false,false,false,false]);
     setFlipped([false,false,false,false,false]);
@@ -181,7 +171,8 @@ export default function VideoPoker() {
     // After animations, compute payout and advance stage
     const totalDelay = lastDelay + FLIP_MS + 10;
     const t3 = window.setTimeout(() => {
-      setStage("payout");
+      // Return to bet stage so player can change bet; keep banner visible until next deal
+      setStage("bet");
       const ev = evaluateHand(finalHand);
       const payout = PAYTABLE[ev.name][bet-1];
       if (payout > 0) {
@@ -189,8 +180,6 @@ export default function VideoPoker() {
         setWinDetails({ name: ev.name, payout });
         setMessage(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}.`);
         setOverlayMsg(`Player won ${payout} credit${payout===1?"":"s"} with a ${ev.name}`);
-        if (overlayTimer.current) clearTimeout(overlayTimer.current);
-        overlayTimer.current = window.setTimeout(() => { setOverlayMsg(null); overlayTimer.current = null; }, 1800);
         setShowWin(false);
       } else {
         setWinDetails(null);
@@ -205,11 +194,6 @@ export default function VideoPoker() {
   const onDealOrDraw = () => {
     if (stage === "bet") return onDeal();
     if (stage === "draw") return onDraw();
-    if (stage === "payout") {
-      // Reset then immediately deal a new hand
-      resetRound();
-      setTimeout(() => onDeal(), 0);
-    }
   };
 
   // keyboard shortcuts
