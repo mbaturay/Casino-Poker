@@ -27,16 +27,10 @@ h1{margin:0;font-size:28px}
 .card-col .held-label{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center;opacity:0;transition:opacity .12s ease}
 .card-col .held-label.visible{opacity:1}
 .card{position:relative;border-radius:12px;overflow:hidden;transition:transform .1s ease;padding:0;background:transparent;border:none;appearance:none;-webkit-appearance:none}
-/* Smooth fade rings via pseudo-elements */
-.card::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 4px var(--accent);opacity:0;transition:opacity .18s ease;pointer-events:none}
-.card.held::after{opacity:1}
-/* Focus ring as inset pseudo-element */
-.card::before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 3px #60a5fa inset;opacity:0;transition:opacity .14s ease;pointer-events:none}
+/* Remove selection rings entirely */
 .card:focus-visible{outline:none}
-.card:focus-visible::before{opacity:1}
 /* don't show focus ring for disabled cards or when not in draw stage */
 .card[disabled], .card[disabled]:focus, .card[disabled]:focus-visible{box-shadow:none !important}
-.card[disabled]::before, .card[disabled]::after{opacity:0 !important}
 /* card images managed via .card3d faces */
 /* 3D flip */
 .card .card3d{perspective:900px;height:260px;aspect-ratio:2.5/3.5;width:auto}
