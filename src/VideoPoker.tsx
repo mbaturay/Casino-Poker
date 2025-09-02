@@ -111,6 +111,7 @@ export default function VideoPoker() {
 
   const onDeal = () => {
     if (stage !== "bet") return;
+    clearTimers();
     // Clear any win banner when starting a new deal
     setOverlayMsg(null);
     if (bet < 1 || bet > 5) return;
@@ -121,20 +122,26 @@ export default function VideoPoker() {
   if (sourceDeck.length < 10) sourceDeck = shuffle(buildDeck());
   const d = [...sourceDeck];
     const newHand = d.splice(0,5);
-  setDeck(d);
-    setHand(newHand);
-    setHeld([false,false,false,false,false]);
-    setFlipped([false,false,false,false,false]);
     setStage("draw");
     setMessage("Select cards to HOLD, then DRAW");
+    // If prior round left cards face-up, flip them to back first for a clean animation
+    const hadFaceUp = hand.length === 5 && flipped.some(v => v);
+    setFlipped([false,false,false,false,false]); // flip all to back (will animate if they were face-up)
+    const backDelay = hadFaceUp ? (FLIP_MS + 100) : 0;
 
-    // Staggered front flips to reveal dealt cards
-    for (let i = 0; i < 5; i++) {
-      const id = window.setTimeout(() => {
-        setFlipped(f => f.map((v, idx) => idx === i ? true : v));
-      }, i * DEAL_STAGGER_MS);
-      flipTimers.current.push(id);
-    }
+    // After the back flip, swap in the new cards and reveal with staggered flips
+    const tSet = window.setTimeout(() => {
+      setDeck(d);
+      setHand(newHand);
+      setHeld([false,false,false,false,false]);
+      for (let i = 0; i < 5; i++) {
+        const id = window.setTimeout(() => {
+          setFlipped(f => f.map((v, idx) => idx === i ? true : v));
+        }, i * DEAL_STAGGER_MS);
+        flipTimers.current.push(id);
+      }
+    }, backDelay);
+    flipTimers.current.push(tSet);
   };
 
   const toggleHold = (i: number) => {
