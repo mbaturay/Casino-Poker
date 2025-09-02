@@ -1,6 +1,8 @@
 :root{
 	--bg1:#0b1220; --bg2:#141a26; --text:#e5e7eb; --muted:#9ca3af;
 	--panel:#1f2937; --border:#2b3344; --accent:#34d399; --warn:#f59e0b; --ok:#10b981;
+	--primary:#5865ff; /* Deal/Draw button color */
+	--dealdraw-minw:112px; /* Ensure no width shift between DEAL/DRAW */
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%}
@@ -63,10 +65,10 @@ code{color:#cbd5e1}
 .machine-bar{display:flex;align-items:center;gap:16px;justify-content:center;margin-top:28px}
 .machine-bar .spacer{flex:1;max-width:180px}
 .machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:800;letter-spacing:.5px}
-.machine-btn.primary{background:#5865ff;color:white}
+.machine-btn.primary{background:var(--primary);color:white}
 .machine-btn:disabled{opacity:.55;cursor:not-allowed}
 .machine-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2d2d2d, 0 3px 8px rgba(0,0,0,.35)}
-.dealdraw-btn{min-width:92px}
+.dealdraw-btn{min-width:var(--dealdraw-minw)}
 .machine-btn .line1,.machine-btn .line2{display:block;line-height:1}
 .machine-btn .line1{font-size:14px}
 .machine-btn .line2{font-size:12px;border-top:2px solid #0b1220;margin-top:2px;padding-top:2px}
