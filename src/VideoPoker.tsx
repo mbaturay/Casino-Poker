@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 
 type Suit = "S" | "H" | "D" | "C";
 type Rank = 2|3|4|5|6|7|8|9|10|"J"|"Q"|"K"|"A";
-type Stage = "bet" | "draw" | "payout";
+type Stage = "bet" | "draw" | "payout" | "bonus-offer" | "bonus";
 type HandRank =
   | "Royal Flush" | "Straight Flush" | "Four of a Kind" | "Full House"
   | "Flush" | "Straight" | "Three of a Kind" | "Two Pair" | "Jacks or Better" | "No Win";
@@ -89,6 +89,12 @@ export default function VideoPoker() {
   const [flipped, setFlipped] = useState<boolean[]>([false,false,false,false,false]);
   const flipTimers = useRef<number[]>([]);
   const [showOutOfCredits, setShowOutOfCredits] = useState(false);
+  // Bonus mini-game state
+  const [pendingWin, setPendingWin] = useState<number>(0); // winnings available to gamble/collect
+  const [bonusCard, setBonusCard] = useState<Card | null>(null);
+  const [bonusFlipped, setBonusFlipped] = useState<boolean>(false);
+  const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
+  const [showBonusContinue, setShowBonusContinue] = useState<boolean>(false);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -202,21 +208,74 @@ export default function VideoPoker() {
     // After animations, compute payout and advance stage
     const totalDelay = lastDelay + FLIP_MS + 10;
     const t3 = window.setTimeout(() => {
-      // Return to bet stage so player can change bet; keep banner visible until next deal
-      setStage("bet");
       const ev = evaluateHand(finalHand);
       const payout = PAYTABLE[ev.name][bet-1];
       if (payout > 0) {
-        setCredits(c => c + payout);
         setWinDetails({ name: ev.name, payout });
-        setMessage(`You win ${payout} credit${payout===1?"":"s"} with a ${ev.name}.`);
+        setPendingWin(payout);
+        setMessage(`You win ${payout} credit${payout===1?"":"s"} with a ${ev.name}. Gamble (Red/Black)?`);
         setShowWin(false);
+        setShowBonusOffer(true);
+        setStage("bonus-offer");
       } else {
         setWinDetails(null);
         setMessage("No win. Try again.");
+        setStage("bet");
       }
     }, totalDelay);
     flipTimers.current.push(t3);
+  };
+
+  const collectPending = () => {
+    if (pendingWin > 0) {
+      setCredits(c => c + pendingWin);
+      setMessage(`Collected ${pendingWin} credit${pendingWin===1?"":"s"}.`);
+    }
+    setPendingWin(0);
+    setShowBonusOffer(false);
+    setShowBonusContinue(false);
+    setBonusCard(null);
+    setBonusFlipped(false);
+    setStage("bet");
+  };
+
+  const startBonus = () => {
+    setShowBonusOffer(false);
+    setBonusCard(null);
+    setBonusFlipped(false);
+    // ensure there are cards available soon for guesses
+    if (deck.length < 1) setDeck(shuffle(buildDeck()));
+    setStage("bonus");
+    setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`);
+  };
+
+  const onBonusGuess = (choice: "red" | "black") => {
+    if (stage !== "bonus") return;
+    // draw a card from deck (reshuffle if empty)
+    let d = [...deck];
+    if (d.length < 1) d = shuffle(buildDeck());
+    const card = d.shift()!;
+    setDeck(d);
+    setBonusCard(card);
+    setBonusFlipped(false);
+    // reveal with a short flip
+    const t1 = window.setTimeout(() => setBonusFlipped(true), 80);
+    flipTimers.current.push(t1);
+    const isRed = card.suit === "H" || card.suit === "D";
+    const correct = (choice === "red") ? isRed : !isRed;
+    const t2 = window.setTimeout(() => {
+      if (correct) {
+        setPendingWin(v => v * 2);
+        setMessage(`Correct! Winnings doubled to ${pendingWin * 2}. Continue?`);
+        setShowBonusContinue(true);
+      } else {
+        setMessage("Wrong! You lost the bonus winnings.");
+        setPendingWin(0);
+        // end bonus round
+        setStage("bet");
+      }
+    }, FLIP_MS + 120);
+    flipTimers.current.push(t2);
   };
 
   const onBetOne = () => { if (stage==="bet") setBet(b => (b % 5) + 1); };
@@ -273,7 +332,8 @@ export default function VideoPoker() {
       {/* Paytable moved into modal, accessible via CTA */}
 
   <div className="status" key={message}>{message}</div>
-  <section className="cards">
+      {stage!=="bonus" && (
+      <section className="cards">
         {Array.from({length:5}).map((_,i)=>{
           const c = hand[i];
           const heldFlag = held[i];
@@ -307,21 +367,46 @@ export default function VideoPoker() {
           );
         })}
       </section>
+      )}
+
+      {stage==="bonus" && (
+        <section className="bonus-area">
+          <div className="card-col">
+            <div className={`card3d ${bonusFlipped ? 'is-flipped' : ''}`}>
+              <div className="card3d-inner">
+                <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
+                <img className="card-face card-front" src={bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
   {/* Bottom machine-style button bar */}
       <section className="machine-bar">
-  <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
-  <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
-  <div className="spacer" />
-        <button
-          className="machine-btn primary dealdraw-btn"
-          onClick={onDealOrDraw}
-          disabled={stage==="bet" ? !canDeal : false}
-        >
-          {stage === "draw" ? "DRAW" : "DEAL"}
-        </button>
+        {stage!=="bonus" && (
+          <>
+            <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
+            <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
+            <div className="spacer" />
+            <button
+              className="machine-btn primary dealdraw-btn"
+              onClick={onDealOrDraw}
+              disabled={stage==="bet" ? !canDeal : false}
+            >
+              {stage === "draw" ? "DRAW" : "DEAL"}
+            </button>
+          </>
+        )}
+        {stage==="bonus" && (
+          <>
+            <div style={{flex:1}} />
+            <button className="machine-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
+            <button className="machine-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
+          </>
+        )}
       </section>
 
   
@@ -343,6 +428,30 @@ export default function VideoPoker() {
             </div>
             <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
               <button className="btn" onClick={() => setShowPaytable(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Gamble Winnings">
+          <div className="modal">
+            <h2>Gamble Winnings?</h2>
+            <p>You won {pendingWin} credit{pendingWin===1?"":"s"}. Play Red/Black to double?</p>
+            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
+              <button className="btn" onClick={collectPending}>Collect</button>
+              <button className="btn primary" onClick={startBonus}>Gamble</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showBonusContinue && stage==="bonus" && pendingWin>0 && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Continue Gambling">
+          <div className="modal">
+            <h2>Double to {pendingWin}?</h2>
+            <p>Correct! Your winnings are now {pendingWin}. Keep going or collect?</p>
+            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
+              <button className="btn" onClick={collectPending}>Collect</button>
+              <button className="btn primary" onClick={()=>{ setShowBonusContinue(false); setBonusCard(null); setBonusFlipped(false); setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`); }}>Continue</button>
             </div>
           </div>
         </div>

@@ -87,6 +87,8 @@ code{color:#cbd5e1}
 .machine-bar .spacer{flex:1;max-width:180px}
 .machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:5px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:600;letter-spacing:.5px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
 .machine-btn.primary{background:var(--primary);color:white}
+.machine-btn.bonus-red{background:#c8102e;color:#fff}
+.machine-btn.bonus-black{background:#111;color:#fff}
 .machine-btn:disabled{opacity:.55;cursor:not-allowed}
 .machine-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2d2d2d, 0 3px 8px rgba(0,0,0,.35)}
 .dealdraw-btn{min-width:var(--dealdraw-minw)}
@@ -94,6 +96,9 @@ code{color:#cbd5e1}
 .machine-btn .line1{font-size:14px}
 .machine-btn .line2{font-size:12px;border-top:2px solid #0b1220;margin-top:2px;padding-top:2px}
 .machine-btn.active{outline:2px solid var(--accent)}
+
+/* bonus area */
+.bonus-area{display:flex;justify-content:center;margin:20px 0}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}
