@@ -133,6 +133,14 @@ export default function VideoPoker() {
     }
   }, [credits, stage]);
 
+  // Ensure bet never exceeds available credits when idle on bet stage
+  useEffect(() => {
+    if (stage === "bet" && credits > 0 && bet > credits) {
+      const nb = Math.min(credits, 5);
+      setBet(nb);
+    }
+  }, [stage, credits, bet]);
+
   const startNewGame = () => {
     clearTimers();
     setShowOutOfCredits(false);
@@ -231,6 +239,8 @@ export default function VideoPoker() {
       } else {
         setWinDetails(null);
         setMessage("No win. Try again.");
+        setHeld([false,false,false,false,false]);
+        setFlipped([false,false,false,false,false]);
         setStage("bet");
       }
     }, totalDelay);
