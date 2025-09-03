@@ -332,7 +332,7 @@ export default function VideoPoker() {
       {/* Paytable moved into modal, accessible via CTA */}
 
   <div className="status" key={message}>{message}</div>
-      {stage!=="bonus" && (
+  {stage!=="bonus" && (
       <section className="cards">
         {Array.from({length:5}).map((_,i)=>{
           const c = hand[i];
@@ -371,13 +371,19 @@ export default function VideoPoker() {
 
       {stage==="bonus" && (
         <section className="bonus-area">
-          <div className="card-col">
-            <div className={`card3d ${bonusFlipped ? 'is-flipped' : ''}`}>
-              <div className="card3d-inner">
-                <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
-                <img className="card-face card-front" src={bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
+          <div className="bonus-card">
+            <div className="card">
+              <div className={`card3d ${bonusFlipped ? 'is-flipped' : ''}`}>
+                <div className="card3d-inner">
+                  <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
+                  <img className="card-face card-front" src={bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
+                </div>
               </div>
             </div>
+          </div>
+          <div className="bonus-actions">
+            <button className="machine-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
+            <button className="machine-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
           </div>
         </section>
       )}
@@ -398,13 +404,6 @@ export default function VideoPoker() {
             >
               {stage === "draw" ? "DRAW" : "DEAL"}
             </button>
-          </>
-        )}
-        {stage==="bonus" && (
-          <>
-            <div style={{flex:1}} />
-            <button className="machine-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
-            <button className="machine-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
           </>
         )}
       </section>

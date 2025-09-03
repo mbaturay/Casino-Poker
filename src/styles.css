@@ -98,7 +98,9 @@ code{color:#cbd5e1}
 .machine-btn.active{outline:2px solid var(--accent)}
 
 /* bonus area */
-.bonus-area{display:flex;justify-content:center;margin:20px 0}
+.bonus-area{display:flex;flex-direction:column;align-items:center;gap:14px;margin:20px 0}
+.bonus-area .bonus-card{display:flex;justify-content:center}
+.bonus-area .bonus-actions{display:flex;gap:16px;justify-content:center}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}
