@@ -492,11 +492,10 @@ export default function VideoPoker() {
   {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Gamble Winnings">
           <div className="modal">
-    <h2>Gamble?</h2>
-    <p>You won {pendingWin} credit{pendingWin===1?"":"s"}. Gamble on Red/Black?</p>
+    <h2>Double or Nothing</h2>
     <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
-      <button className="machine-btn" onClick={collectPending}>NO</button>
       <button className="machine-btn" onClick={startBonus}>YES</button>
+      <button className="machine-btn" onClick={collectPending}>NO</button>
             </div>
           </div>
         </div>
