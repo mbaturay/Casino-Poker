@@ -41,7 +41,7 @@ h1{margin:0;font-size:28px}
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
-.cards{display:flex;justify-content:space-between;gap:0;margin:12px 0 22px;width:100%}
+.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + 60px);overflow:visible}
 /* slide animations */
 .cards.slide-out{animation:cardsSlideOut .35s ease forwards}
 .cards.slide-in{animation:cardsSlideIn .35s ease forwards}
@@ -125,7 +125,7 @@ code{color:#cbd5e1}
 .modal .row .machine-btn{min-width:120px}
 
 /* playfield overlay to center modal above cards */
-.playfield{position:relative;display:flex;align-items:center;justify-content:center;min-height:calc(var(--card-h) + 140px);padding:24px 0;overflow:visible}
+.playfield{position:relative}
 .playfield-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:10px}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
