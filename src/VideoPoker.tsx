@@ -450,7 +450,7 @@ export default function VideoPoker() {
       {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
           <div className="modal modal-offer">
-            <h2>Double or Nothing</h2>
+            <p className="offer-msg">Double or Nothing</p>
             <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
               <button className="machine-btn" onClick={startBonus}>YES</button>
               <button className="machine-btn" onClick={collectPending}>NO</button>
