@@ -240,7 +240,13 @@ export default function VideoPoker() {
         setWinDetails(null);
         setMessage("No win. Try again.");
         setHeld([false,false,false,false,false]);
-        setFlipped([false,false,false,false,false]);
+        // keep the final hand visible so the player can see the result
+        setFlipped([true,true,true,true,true]);
+        // ensure no lingering slide animations
+        setAnimCardsOut(false);
+        setAnimCardsIn(false);
+        setAnimBonusIn(false);
+        setAnimBonusOut(false);
         setStage("bet");
       }
     }, totalDelay);
@@ -326,19 +332,16 @@ export default function VideoPoker() {
         setMessage("Wrong! You lost the bonus winnings.");
         setPendingWin(0);
         setShowBonusContinue(false);
-        // Animate bonus card out, then bring 5 backs in and return to bet
+        // Animate bonus card out and return to bet without auto-dealing new backs
         setAnimBonusOut(true);
         const tOut = window.setTimeout(() => {
           setAnimBonusOut(false);
           setStage("bet");
           setBonusCard(null);
           setBonusFlipped(false);
-          setHand([]);
-          setHeld([false,false,false,false,false]);
-          setFlipped([false,false,false,false,false]);
-          setAnimCardsIn(true);
-          const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
-          flipTimers.current.push(tIn);
+          // keep last hand (already cleared in bonus view) hidden; wait for player to Deal
+          setAnimCardsIn(false);
+          setAnimCardsOut(false);
         }, BONUS_OUT_MS);
         flipTimers.current.push(tOut);
       }
