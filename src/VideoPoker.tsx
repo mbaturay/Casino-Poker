@@ -390,6 +390,7 @@ export default function VideoPoker() {
       {/* Paytable moved into modal, accessible via CTA */}
 
   <div className="status" key={message}>{message}</div>
+  <div className="playfield">
   {stage!=="bonus" && (
   <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""}`}>
         {Array.from({length:5}).map((_,i)=>{
@@ -425,9 +426,9 @@ export default function VideoPoker() {
           );
         })}
       </section>
-      )}
+  )}
 
-      {stage==="bonus" && (
+  {stage==="bonus" && (
         <section className={`bonus-area ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
           <div className="bonus-card">
             <div className="card">
@@ -445,6 +446,19 @@ export default function VideoPoker() {
           </div>
         </section>
       )}
+
+      {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
+        <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
+          <div className="modal modal-offer">
+            <h2>Double or Nothing</h2>
+            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
+              <button className="machine-btn" onClick={startBonus}>YES</button>
+              <button className="machine-btn" onClick={collectPending}>NO</button>
+            </div>
+          </div>
+        </div>
+      )}
+  </div>
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
@@ -489,17 +503,7 @@ export default function VideoPoker() {
           </div>
         </div>
       )}
-  {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Gamble Winnings">
-          <div className="modal">
-    <h2>Double or Nothing</h2>
-    <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
-      <button className="machine-btn" onClick={startBonus}>YES</button>
-      <button className="machine-btn" onClick={collectPending}>NO</button>
-            </div>
-          </div>
-        </div>
-      )}
+  
       {showBonusContinue && stage==="bonus" && pendingWin>0 && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Continue Gambling">
           <div className="modal">

@@ -78,10 +78,11 @@ code{color:#cbd5e1}
 /* modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
 .modal{background:#0f172a;border:1px solid var(--border);border-radius:14px;max-width:420px;width:100%;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.modal.modal-offer{padding:20px 22px}
 .modal h2{margin:0 0 8px 0}
 .modal p{margin:0 0 8px 0}
 /* add breathing room between modal action buttons */
-.modal .row{gap:16px}
+.modal .row{gap:18px}
 /* wider paytable modal */
 .modal.modal-paytable{max-width:900px}
 .modal.modal-paytable .paytable-board{padding:14px}
@@ -115,6 +116,10 @@ code{color:#cbd5e1}
 
 /* Make Yes/No buttons in modal match machine button look */
 .modal .row .machine-btn{min-width:120px}
+
+/* playfield overlay to center modal above cards */
+.playfield{position:relative}
+.playfield-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:10px}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}
