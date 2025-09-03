@@ -125,7 +125,7 @@ code{color:#cbd5e1}
 .modal .row .machine-btn{min-width:120px}
 
 /* playfield overlay to center modal above cards */
-.playfield{position:relative;display:flex;align-items:center;justify-content:center;min-height:calc(var(--card-h) + 60px)}
+.playfield{position:relative;display:flex;align-items:center;justify-content:center;min-height:calc(var(--card-h) + 140px);padding:24px 0;overflow:visible}
 .playfield-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:10px}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
