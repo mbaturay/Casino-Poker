@@ -41,7 +41,7 @@ h1{margin:0;font-size:28px}
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
-.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + 60px);overflow:visible}
+.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + 120px);padding:24px 0;overflow:visible}
 /* slide animations */
 .cards.slide-out{animation:cardsSlideOut .35s ease forwards}
 .cards.slide-in{animation:cardsSlideIn .35s ease forwards}
@@ -52,7 +52,7 @@ h1{margin:0;font-size:28px}
 .card-col .held-slot{height:22px;display:flex;align-items:center;justify-content:center}
 .card-col .held-label{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center;opacity:0;transition:opacity .12s ease}
 .card-col .held-label.visible{opacity:1}
-.card{position:relative;border-radius:12px;overflow:hidden;transition:transform .1s ease;padding:0;background:transparent;border:none;appearance:none;-webkit-appearance:none}
+.card{position:relative;border-radius:12px;overflow:visible;transition:transform .1s ease;padding:0;background:transparent;border:none;appearance:none;-webkit-appearance:none}
 /* Remove selection rings entirely */
 .card:focus-visible{outline:none}
 /* don't show focus ring for disabled cards or when not in draw stage */
@@ -62,7 +62,7 @@ h1{margin:0;font-size:28px}
 .card .card3d{perspective:900px;height:var(--card-h);aspect-ratio:2.5/3.5;width:auto}
 .card .card3d-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s ease}
 .card .card3d.is-flipped .card3d-inner{transform:rotateY(180deg)}
-.card .card-face{position:absolute;inset:0;backface-visibility:hidden;display:block;height:100%;width:100%;object-fit:contain;margin:0}
+.card .card-face{position:absolute;inset:0;backface-visibility:hidden;display:block;height:100%;width:100%;object-fit:contain;margin:0;border-radius:12px}
 .card .card-front{transform:rotateY(180deg)}
 .card .card-back{transform:rotateY(0deg)}
 .hold{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:12px;opacity:.9}
