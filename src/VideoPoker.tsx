@@ -95,10 +95,20 @@ export default function VideoPoker() {
   const [bonusFlipped, setBonusFlipped] = useState<boolean>(false);
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   const [showBonusContinue, setShowBonusContinue] = useState<boolean>(false);
+  // UI transition animation flags
+  const [animCardsOut, setAnimCardsOut] = useState(false);
+  const [animCardsIn, setAnimCardsIn] = useState(false);
+  const [animBonusIn, setAnimBonusIn] = useState(false);
+  const [animBonusOut, setAnimBonusOut] = useState(false);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
   const DRAW_STAGGER_MS = 120; // delay between cards on draw
+  // UI animation durations (keep in sync with CSS)
+  const CARDS_OUT_MS = 350;
+  const BONUS_IN_MS = 350;
+  const BONUS_OUT_MS = 300;
+  const CARDS_IN_MS = 350;
 
   const clearTimers = () => {
     flipTimers.current.forEach(id => clearTimeout(id));
@@ -132,6 +142,7 @@ export default function VideoPoker() {
     setHand([]);
     setHeld([false,false,false,false,false]);
     setFlipped([false,false,false,false,false]);
+  setAnimCardsOut(false); setAnimCardsIn(false); setAnimBonusIn(false); setAnimBonusOut(false);
     setStage("bet");
     setMessage("Place your bet and deal");
   };
@@ -227,26 +238,58 @@ export default function VideoPoker() {
   };
 
   const collectPending = () => {
-    if (pendingWin > 0) {
-      setCredits(c => c + pendingWin);
-      setMessage(`Collected ${pendingWin} credit${pendingWin===1?"":"s"}.`);
+    const amount = pendingWin;
+    if (amount > 0) {
+      setCredits(c => c + amount);
+      setMessage(`Collected ${amount} credit${amount===1?"":"s"}.`);
     }
-    setPendingWin(0);
-    setShowBonusOffer(false);
-    setShowBonusContinue(false);
-    setBonusCard(null);
-    setBonusFlipped(false);
-    setStage("bet");
+    // If we're in the bonus view, animate the bonus card out and bring the 5 backs in
+    if (stage === "bonus") {
+      setShowBonusContinue(false);
+      setPendingWin(0);
+      setAnimBonusOut(true);
+      const t1 = window.setTimeout(() => {
+        setAnimBonusOut(false);
+        setStage("bet");
+        setShowBonusOffer(false);
+        setBonusCard(null);
+        setBonusFlipped(false);
+        // Prepare 5 back-of-cards and animate in
+        setHand([]);
+        setHeld([false,false,false,false,false]);
+        setFlipped([false,false,false,false,false]);
+        setAnimCardsIn(true);
+        const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
+        flipTimers.current.push(t2);
+      }, BONUS_OUT_MS);
+      flipTimers.current.push(t1);
+    } else {
+      // Collecting from the offer (No) — no bonus shown; just reset to bet
+      setPendingWin(0);
+      setShowBonusOffer(false);
+      setShowBonusContinue(false);
+      setBonusCard(null);
+      setBonusFlipped(false);
+      setStage("bet");
+    }
   };
 
   const startBonus = () => {
+    // Animate out the current 5 cards first, then reveal the bonus single card
     setShowBonusOffer(false);
-    setBonusCard(null);
-    setBonusFlipped(false);
-    // ensure there are cards available soon for guesses
-    if (deck.length < 1) setDeck(shuffle(buildDeck()));
-    setStage("bonus");
-    setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`);
+    setAnimCardsOut(true);
+    const t1 = window.setTimeout(() => {
+      setAnimCardsOut(false);
+      setBonusCard(null);
+      setBonusFlipped(false);
+      if (deck.length < 1) setDeck(shuffle(buildDeck()));
+      setStage("bonus");
+      setAnimBonusIn(true);
+      setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`);
+      const t2 = window.setTimeout(() => setAnimBonusIn(false), BONUS_IN_MS);
+      flipTimers.current.push(t2);
+    }, CARDS_OUT_MS);
+    flipTimers.current.push(t1);
   };
 
   const onBonusGuess = (choice: "red" | "black") => {
@@ -266,13 +309,28 @@ export default function VideoPoker() {
     const t2 = window.setTimeout(() => {
       if (correct) {
         setPendingWin(v => v * 2);
-        setMessage(`Correct! Winnings doubled to ${pendingWin * 2}. Continue?`);
+        // We can't reliably read updated pendingWin immediately; compute doubled for message from prior value
+        setMessage(`Correct! Winnings doubled. Continue?`);
         setShowBonusContinue(true);
       } else {
         setMessage("Wrong! You lost the bonus winnings.");
         setPendingWin(0);
-        // end bonus round
-        setStage("bet");
+        setShowBonusContinue(false);
+        // Animate bonus card out, then bring 5 backs in and return to bet
+        setAnimBonusOut(true);
+        const tOut = window.setTimeout(() => {
+          setAnimBonusOut(false);
+          setStage("bet");
+          setBonusCard(null);
+          setBonusFlipped(false);
+          setHand([]);
+          setHeld([false,false,false,false,false]);
+          setFlipped([false,false,false,false,false]);
+          setAnimCardsIn(true);
+          const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
+          flipTimers.current.push(tIn);
+        }, BONUS_OUT_MS);
+        flipTimers.current.push(tOut);
       }
     }, FLIP_MS + 120);
     flipTimers.current.push(t2);
@@ -333,7 +391,7 @@ export default function VideoPoker() {
 
   <div className="status" key={message}>{message}</div>
   {stage!=="bonus" && (
-      <section className="cards">
+  <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""}`}>
         {Array.from({length:5}).map((_,i)=>{
           const c = hand[i];
           const heldFlag = held[i];
@@ -370,7 +428,7 @@ export default function VideoPoker() {
       )}
 
       {stage==="bonus" && (
-        <section className="bonus-area">
+        <section className={`bonus-area ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
           <div className="bonus-card">
             <div className="card">
               <div className={`card3d ${bonusFlipped ? 'is-flipped' : ''}`}>
@@ -382,8 +440,8 @@ export default function VideoPoker() {
             </div>
           </div>
           <div className="bonus-actions">
-            <button className="machine-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
-            <button className="machine-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
+            <button className="machine-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
+            <button className="machine-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
           </div>
         </section>
       )}
@@ -431,14 +489,14 @@ export default function VideoPoker() {
           </div>
         </div>
       )}
-      {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
+  {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Gamble Winnings">
           <div className="modal">
-            <h2>Gamble Winnings?</h2>
-            <p>You won {pendingWin} credit{pendingWin===1?"":"s"}. Play Red/Black to double?</p>
-            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
-              <button className="btn" onClick={collectPending}>Collect</button>
-              <button className="btn primary" onClick={startBonus}>Gamble</button>
+    <h2>Gamble?</h2>
+    <p>You won {pendingWin} credit{pendingWin===1?"":"s"}. Gamble on Red/Black?</p>
+    <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
+      <button className="machine-btn" onClick={collectPending}>NO</button>
+      <button className="machine-btn" onClick={startBonus}>YES</button>
             </div>
           </div>
         </div>

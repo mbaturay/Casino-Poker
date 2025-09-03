@@ -40,6 +40,11 @@ h1{margin:0;font-size:28px}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
 .cards{display:flex;justify-content:space-between;gap:0;margin:12px 0 22px;width:100%}
+/* slide animations */
+.cards.slide-out{animation:cardsSlideOut .35s ease forwards}
+.cards.slide-in{animation:cardsSlideIn .35s ease forwards}
+@keyframes cardsSlideOut{to{transform:translateY(30px);opacity:0}}
+@keyframes cardsSlideIn{from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1}}
 @keyframes statusFade{0%{opacity:0}60%{opacity:1}100%{opacity:.95}}
 .card-col{display:flex;flex-direction:column;align-items:center;gap:8px}
 .card-col .held-slot{height:22px;display:flex;align-items:center;justify-content:center}
@@ -99,8 +104,15 @@ code{color:#cbd5e1}
 
 /* bonus area */
 .bonus-area{display:flex;flex-direction:column;align-items:center;gap:14px;margin:20px 0}
+.bonus-area.slide-in{animation:bonusIn .35s ease forwards}
+.bonus-area.slide-out{animation:bonusOut .3s ease forwards}
+@keyframes bonusIn{from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1}}
+@keyframes bonusOut{to{transform:translateY(30px);opacity:0}}
 .bonus-area .bonus-card{display:flex;justify-content:center}
 .bonus-area .bonus-actions{display:flex;gap:16px;justify-content:center}
+
+/* Make Yes/No buttons in modal match machine button look */
+.modal .row .machine-btn{min-width:120px}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}
