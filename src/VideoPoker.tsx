@@ -101,6 +101,12 @@ export default function VideoPoker() {
   const [animCardsIn, setAnimCardsIn] = useState(false);
   const [animBonusIn, setAnimBonusIn] = useState(false);
   const [animBonusOut, setAnimBonusOut] = useState(false);
+  // concurrent transition helpers
+  const [outHand, setOutHand] = useState<Card[] | null>(null); // snapshot of 5-card hand to animate out
+  const [animCardsOutSeqLeft, setAnimCardsOutSeqLeft] = useState(false); // per-card slide left with stagger
+  const [animBonusInRight, setAnimBonusInRight] = useState(false);
+  // hide the base 5-card grid during the outgoing animation to prevent double visuals
+  const [hideMainCards, setHideMainCards] = useState(false);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -111,6 +117,7 @@ export default function VideoPoker() {
   const BONUS_OUT_MS = 350;
   const CARDS_IN_MS = 350;
   const BONUS_PAUSE_MS = 1000; // brief hold on revealed card before transitioning
+  const BONUS_STAGGER_MS = 120; // per-card slide-out stagger for outgoing hand
 
   const clearTimers = () => {
     flipTimers.current.forEach(id => clearTimeout(id));
@@ -293,22 +300,32 @@ export default function VideoPoker() {
   };
 
   const startBonus = () => {
-    // Animate out the current 5 cards first, then reveal the bonus single card
+    // Hide modal immediately
     setShowBonusOffer(false);
-    setAnimCardsOut(true);
-    const t1 = window.setTimeout(() => {
-      setAnimCardsOut(false);
-      setBonusCard(null);
-      
-      setCanCollect(false);
+  // Snapshot current 5-card hand and slide each card out left with stagger.
+  // Hide the base grid first to avoid any one-frame layout shift.
+  setHideMainCards(true);
+  setOutHand(hand);
+  setAnimCardsOutSeqLeft(true);
+
+    // After the last card finishes sliding out, then bring in the single back card from the right
+    const totalOut = CARDS_OUT_MS + 4 * BONUS_STAGGER_MS;
+    const tOut = window.setTimeout(() => {
+      setAnimCardsOutSeqLeft(false);
+      setOutHand(null);
+
       if (deck.length < 1) setDeck(shuffle(buildDeck()));
-      setStage("bonus");
-      setAnimBonusIn(true);
+      setBonusCard(null); // start with back-side
+      setCanCollect(false);
+  setStage("bonus");
+  setHideMainCards(false);
+      setAnimBonusInRight(true);
       setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`);
-      const t2 = window.setTimeout(() => setAnimBonusIn(false), BONUS_IN_MS);
-      flipTimers.current.push(t2);
-    }, CARDS_OUT_MS);
-    flipTimers.current.push(t1);
+
+      const tIn = window.setTimeout(() => setAnimBonusInRight(false), BONUS_IN_MS);
+      flipTimers.current.push(tIn);
+    }, totalOut);
+    flipTimers.current.push(tOut);
   };
 
   const onBonusGuess = (choice: "red" | "black") => {
@@ -425,12 +442,21 @@ export default function VideoPoker() {
   <div className="playfield">
     <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""}`}>
       {Array.from({length:5}).map((_,i)=>{
+        if (hideMainCards && stage !== "bonus") {
+          // while animating out, replace main grid with spacers to avoid visual duplication
+          return (
+            <div className="card-col" key={`h-${i}`}>
+              <div className="card-spacer" />
+              <div className="held-slot"><div className="held-label" style={{opacity:0}}>&nbsp;</div></div>
+            </div>
+          );
+        }
         if (stage === "bonus") {
           // In bonus, render the single card in the middle (3rd) slot; others are spacers
           return (
             <div className="card-col" key={`b-${i}`}>
               {i === 2 ? (
-                <div className={`bonus-card ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
+                <div className={`bonus-card ${animBonusIn?"slide-in":animBonusOut?"slide-out":""} ${animBonusInRight?"slide-in-right":""}`}>
                   <button className="card" disabled>
                     <div className="card3d">
                       <div className="card3d-inner">
@@ -483,6 +509,23 @@ export default function VideoPoker() {
         );
       })}
     </section>
+    {outHand && animCardsOutSeqLeft && (
+      <section className="cards out-overlay" aria-hidden>
+        {outHand.map((c,i)=> (
+          <div className="card-col" key={`out-${i}`}>
+            <button className={`card slide-left`} style={{ animationDelay: `${i * BONUS_STAGGER_MS}ms` }} disabled>
+              <div className="card3d is-flipped">
+                <div className="card3d-inner">
+                  <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
+                  <img className="card-face card-front" src={cardImage(c)} alt={cardCode(c)} />
+                </div>
+              </div>
+            </button>
+            <div className="held-slot"><div className={`held-label ${held[i]?"visible":""}`}>HOLD</div></div>
+          </div>
+        ))}
+      </section>
+    )}
   </div>
   {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">

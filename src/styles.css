@@ -41,18 +41,31 @@ h1{margin:0;font-size:28px}
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
-.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + 120px);padding:24px 0;overflow:visible}
+.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + 120px);padding:24px 0;overflow:visible;position:relative}
+.out-overlay{display:flex;justify-content:space-between;align-items:center}
+/* keep a fixed vertical shell so swapping to overlay/spacers doesn’t nudge position */
+.cards::before{content:"";position:absolute;inset:0;pointer-events:none}
 /* slide animations */
 .cards.slide-out{animation:cardsSlideOut .35s ease forwards}
 .cards.slide-in{animation:cardsSlideIn .35s ease forwards}
+/* rightward variants used for bonus transition */
+.cards.slide-out-right{animation:cardsSlideOutRight .35s ease forwards}
+.bonus-card.slide-in-right{animation:bonusInRight .35s ease forwards}
 @keyframes cardsSlideOut{to{transform:translateY(30px);opacity:0}}
 @keyframes cardsSlideIn{from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1}}
+@keyframes cardsSlideOutRight{to{transform:translateX(60px);opacity:0}}
+@keyframes bonusInRight{from{transform:translateX(60px);opacity:0} to{transform:translateX(0);opacity:1}}
+/* per-card sequential slide left used for outgoing hand */
+.card.slide-left{animation:cardSlideLeft .35s ease forwards}
+@keyframes cardSlideLeft{to{transform:translateX(-120px);opacity:0}}
 @keyframes statusFade{0%{opacity:0}60%{opacity:1}100%{opacity:.95}}
 .card-col{display:flex;flex-direction:column;align-items:center;gap:8px}
+.card-col .card-spacer{border-radius:12px}
 .card-col .held-slot{height:22px;display:flex;align-items:center;justify-content:center}
 .card-col .held-label{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center;opacity:0;transition:opacity .12s ease}
 .card-col .held-label.visible{opacity:1}
 .card{position:relative;border-radius:12px;overflow:visible;transition:transform .1s ease;padding:0;background:transparent;border:none;appearance:none;-webkit-appearance:none}
+.out-overlay .card{padding:0;margin:0;vertical-align:top}
 /* Remove selection rings entirely */
 .card:focus-visible{outline:none}
 /* don't show focus ring for disabled cards or when not in draw stage */
@@ -123,7 +136,7 @@ code{color:#cbd5e1}
 .bonus-area .bonus-actions{display:flex;gap:20px;justify-content:center}
 /* bonus uses the same .card structure; no special sizing needed */
 /* blank space placeholder used for non-active bonus slots */
-.card-spacer{height:var(--card-h);width:calc(var(--card-h) * 2.5 / 3.5)}
+.card-spacer{height:var(--card-h);width:calc(var(--card-h) * 2.5 / 3.5);display:block}
 
 /* Make Yes/No buttons in modal match machine button look */
 .modal .row .machine-btn{min-width:120px}
@@ -132,6 +145,8 @@ code{color:#cbd5e1}
 .playfield{position:relative}
 /* keep overlay for centering the offer modal, but don't tint the playfield behind cards */
 .playfield-overlay{position:absolute;inset:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:10px}
+/* outgoing hand overlay during bonus transition */
+.out-overlay{position:absolute;left:0;right:0;top:0;bottom:0;margin:0;padding:24px 0;pointer-events:none}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}
