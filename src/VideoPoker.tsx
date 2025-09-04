@@ -110,6 +110,7 @@ export default function VideoPoker() {
   const BONUS_IN_MS = 350;
   const BONUS_OUT_MS = 300;
   const CARDS_IN_MS = 350;
+  const BONUS_PAUSE_MS = 650; // brief hold on revealed card before transitioning
 
   const clearTimers = () => {
     flipTimers.current.forEach(id => clearTimeout(id));
@@ -240,7 +241,7 @@ export default function VideoPoker() {
       } else {
         setWinDetails(null);
         setMessage("No win. Try again.");
-        setHeld([false,false,false,false,false]);
+        // Preserve HOLD labels exactly as the player left them until the next Deal
         // keep the final hand visible so the player can see the result
         setFlipped([true,true,true,true,true]);
         // ensure no lingering slide animations
@@ -262,24 +263,24 @@ export default function VideoPoker() {
     }
     // If we're in the bonus view, animate the bonus card out and bring the 5 backs in
   if (stage === "bonus") {
-  // continue modal removed
+      // Briefly hold the result on screen, then slide out and return to bet
       setPendingWin(0);
-      setAnimBonusOut(true);
-      const t1 = window.setTimeout(() => {
-        setAnimBonusOut(false);
-        setStage("bet");
-        setShowBonusOffer(false);
-        setBonusCard(null);
-            
-        // Prepare 5 back-of-cards and animate in
-        setHand([]);
-        setHeld([false,false,false,false,false]);
-        setFlipped([false,false,false,false,false]);
-        setAnimCardsIn(true);
-        const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
-        flipTimers.current.push(t2);
-      }, BONUS_OUT_MS);
-      flipTimers.current.push(t1);
+      const tPause = window.setTimeout(() => {
+        setAnimBonusOut(true);
+        const t1 = window.setTimeout(() => {
+          setAnimBonusOut(false);
+          setStage("bet");
+          setShowBonusOffer(false);
+          setBonusCard(null);
+          setCanCollect(false);
+          // Restore previous final hand and holds; animate cards back in (face-up)
+          setAnimCardsIn(true);
+          const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
+          flipTimers.current.push(t2);
+        }, BONUS_OUT_MS);
+        flipTimers.current.push(t1);
+      }, BONUS_PAUSE_MS);
+      flipTimers.current.push(tPause);
     } else {
       // Collecting from the offer (No) — no bonus shown; just reset to bet
       setPendingWin(0);
@@ -341,24 +342,27 @@ export default function VideoPoker() {
             flipTimers.current.push(tAfterIn);
           }, BONUS_OUT_MS);
           flipTimers.current.push(tAfterOut);
-        }, 150);
+        }, BONUS_PAUSE_MS);
         flipTimers.current.push(tOut);
       } else {
         setMessage("Wrong! You lost the bonus winnings.");
         setPendingWin(0);
         // continue modal removed
-        // Animate bonus card out and return to bet without auto-dealing new backs
-        setAnimBonusOut(true);
-        const tOut = window.setTimeout(() => {
-          setAnimBonusOut(false);
-          setStage("bet");
-          setBonusCard(null);
-          
-          // keep last hand (already cleared in bonus view) hidden; wait for player to Deal
-          setAnimCardsIn(false);
-          setAnimCardsOut(false);
-        }, BONUS_OUT_MS);
-        flipTimers.current.push(tOut);
+        // Hold on the revealed card briefly, then animate out and return to bet with prior hand visible
+        const tPauseLose = window.setTimeout(() => {
+          setAnimBonusOut(true);
+          const tOut = window.setTimeout(() => {
+            setAnimBonusOut(false);
+            setStage("bet");
+            setBonusCard(null);
+            setCanCollect(false);
+            setAnimCardsIn(true);
+            const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
+            flipTimers.current.push(tIn);
+          }, BONUS_OUT_MS);
+          flipTimers.current.push(tOut);
+        }, BONUS_PAUSE_MS);
+        flipTimers.current.push(tPauseLose);
       }
     }, 220);
     flipTimers.current.push(t2);
@@ -419,56 +423,67 @@ export default function VideoPoker() {
 
   <div className="status" key={message}>{message}</div>
   <div className="playfield">
-  {stage!=="bonus" && (
-  <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""}`}>
-        {Array.from({length:5}).map((_,i)=>{
-          const c = hand[i];
-          const heldFlag = held[i];
+    <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""}`}>
+      {Array.from({length:5}).map((_,i)=>{
+        if (stage === "bonus") {
+          // In bonus, render the single card in the middle (3rd) slot; others are spacers
           return (
-            <div className="card-col" key={i}>
-              <button
-                onClick={()=>toggleHold(i)}
-                disabled={!canDraw}
-                className={`card ${stage === "draw" && heldFlag?"held":""}`}
-                aria-pressed={heldFlag}
-              >
-                <div className={`card3d ${flipped[i] ? 'is-flipped' : ''}`}>
-                  <div className="card3d-inner">
-                    <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
-                    <img className="card-face card-front" src={c? cardImage(c) : "/cards/2B.svg"} alt={c? cardCode(c) : "Back"} />
-                  </div>
+            <div className="card-col" key={`b-${i}`}>
+              {i === 2 ? (
+                <div className={`bonus-card ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
+                  <button className="card" disabled>
+                    <div className="card3d">
+                      <div className="card3d-inner">
+                        {(() => { const imgSrc = bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"; return (
+                          <>
+                            <img className="card-face card-back" src={imgSrc} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
+                            <img className="card-face card-front" src={imgSrc} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
+                          </>
+                        ); })()}
+                      </div>
+                    </div>
+                  </button>
                 </div>
-              </button>
-              <div className="held-slot">
-                <div className={`held-label ${heldFlag ? "visible" : ""}`}>HOLD</div>
-              </div>
-              <button
-                className={`machine-btn hold-btn ${heldFlag?"active":""}`}
-                onClick={()=>toggleHold(i)}
-                disabled={stage!=="draw"}
-              >
-                <span className="line1">{heldFlag? "CANCEL" : "HOLD"}</span>
-                <span className="line2">{heldFlag? "HOLD" : "CANCEL"}</span>
-              </button>
+              ) : (
+                <div className="card-spacer" />
+              )}
+              <div className="held-slot"><div className="held-label" style={{opacity:0}}>&nbsp;</div></div>
             </div>
           );
-        })}
-      </section>
-  )}
-
-  {stage==="bonus" && (
-        <section className={`bonus-area ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
-          <div className="bonus-card">
-            <img className="card-single" src={bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
+        }
+        const c = hand[i];
+        const heldFlag = held[i];
+        return (
+          <div className="card-col" key={i}>
+            <button
+              onClick={()=>toggleHold(i)}
+              disabled={!canDraw}
+              className={`card ${stage === "draw" && heldFlag?"held":""}`}
+              aria-pressed={heldFlag}
+            >
+              <div className={`card3d ${flipped[i] ? 'is-flipped' : ''}`}>
+                <div className="card3d-inner">
+                  <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
+                  <img className="card-face card-front" src={c? cardImage(c) : "/cards/2B.svg"} alt={c? cardCode(c) : "Back"} />
+                </div>
+              </div>
+            </button>
+            <div className="held-slot">
+              <div className={`held-label ${heldFlag ? "visible" : ""}`}>HOLD</div>
+            </div>
+            <button
+              className={`machine-btn hold-btn ${heldFlag?"active":""}`}
+              onClick={()=>toggleHold(i)}
+              disabled={stage!=="draw"}
+            >
+              <span className="line1">{heldFlag? "CANCEL" : "HOLD"}</span>
+              <span className="line2">{heldFlag? "HOLD" : "CANCEL"}</span>
+            </button>
           </div>
-          <div className="bonus-actions">
-            <button className="machine-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
-            <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
-            <button className="machine-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
-          </div>
-        </section>
-      )}
-
+        );
+      })}
+    </section>
+  </div>
   {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
           <div className="modal modal-offer">
@@ -479,14 +494,13 @@ export default function VideoPoker() {
             </div>
           </div>
         </div>
-      )}
-  </div>
+  )}
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
   {/* Bottom machine-style button bar */}
       <section className="machine-bar">
-        {stage!=="bonus" && (
+        {stage!=="bonus" ? (
           <>
             <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
             <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
@@ -498,6 +512,13 @@ export default function VideoPoker() {
             >
               {stage === "draw" ? "DRAW" : "DEAL"}
             </button>
+          </>
+        ) : (
+          <>
+            <button className="machine-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
+            <button className="machine-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
+            <div className="spacer" />
+            <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
           </>
         )}
       </section>
@@ -527,7 +548,7 @@ export default function VideoPoker() {
       )}
   
   {/* bonus continue modal removed in favor of inline collect flow */}
-  {showWin && winDetails && (
+  {showWin && winDetails ? (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Winnings">
           <div className="modal">
             <h2>Winner!</h2>
@@ -537,7 +558,7 @@ export default function VideoPoker() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
       {showOutOfCredits && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Out of credits">
           <div className="modal">

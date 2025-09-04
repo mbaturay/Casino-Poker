@@ -102,8 +102,8 @@ code{color:#cbd5e1}
 .machine-bar .spacer{flex:1;max-width:180px}
 .machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:5px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:600;letter-spacing:.5px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
 .machine-btn.primary{background:var(--primary);color:white}
-.machine-btn.bonus-red{background:#c8102e;color:#fff}
-.machine-btn.bonus-black{background:#111;color:#fff}
+.machine-btn.bonus-red{background:#fff;color:#c8102e;border:1px solid #c8102e}
+.machine-btn.bonus-black{background:#fff;color:#111;border:1px solid #111}
 .machine-btn:disabled{opacity:.55;cursor:not-allowed}
 .machine-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2d2d2d, 0 3px 8px rgba(0,0,0,.35)}
 .dealdraw-btn{min-width:var(--dealdraw-minw)}
@@ -113,21 +113,25 @@ code{color:#cbd5e1}
 .machine-btn.active{outline:2px solid var(--accent)}
 
 /* bonus area */
-.bonus-area{display:flex;flex-direction:column;align-items:center;gap:14px;margin:20px 0}
-.bonus-area.slide-in{animation:bonusIn .35s ease forwards}
-.bonus-area.slide-out{animation:bonusOut .3s ease forwards}
+.bonus-area{display:flex;flex-direction:column;align-items:center;gap:16px;margin:20px 0}
+/* Only animate the card container; buttons stay static */
+.bonus-area .bonus-card.slide-in{animation:bonusIn .35s ease forwards}
+.bonus-area .bonus-card.slide-out{animation:bonusOut .3s ease forwards}
 @keyframes bonusIn{from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1}}
 @keyframes bonusOut{to{transform:translateY(30px);opacity:0}}
 .bonus-area .bonus-card{display:flex;justify-content:center}
-.bonus-area .bonus-actions{display:flex;gap:16px;justify-content:center}
-.bonus-area .card-single{height:var(--card-h);aspect-ratio:2.5/3.5;object-fit:contain;display:block}
+.bonus-area .bonus-actions{display:flex;gap:20px;justify-content:center}
+/* bonus uses the same .card structure; no special sizing needed */
+/* blank space placeholder used for non-active bonus slots */
+.card-spacer{height:var(--card-h);width:calc(var(--card-h) * 2.5 / 3.5)}
 
 /* Make Yes/No buttons in modal match machine button look */
 .modal .row .machine-btn{min-width:120px}
 
 /* playfield overlay to center modal above cards */
 .playfield{position:relative}
-.playfield-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:10px}
+/* keep overlay for centering the offer modal, but don't tint the playfield behind cards */
+.playfield-overlay{position:absolute;inset:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:10px}
 
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}

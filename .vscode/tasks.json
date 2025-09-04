@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "commit-bonus-alignment-preserve-holds",
+			"type": "shell",
+			"command": "git add -A; git commit -m \"ui(bonus): align to card 3; static buttons in machine bar; white Red/Black w/ spacing; animate card only; overlay no tint; preserve holds after no-win; pause bonus transitions; keep hand after collect/loss\"; git push",
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
