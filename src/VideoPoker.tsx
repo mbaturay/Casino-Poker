@@ -92,7 +92,7 @@ export default function VideoPoker() {
   // Bonus mini-game state
   const [pendingWin, setPendingWin] = useState<number>(0); // winnings available to gamble/collect
   const [bonusCard, setBonusCard] = useState<Card | null>(null);
-  const [bonusFlipped, setBonusFlipped] = useState<boolean>(false);
+  // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   // removed continue modal; no longer needed
   const [canCollect, setCanCollect] = useState<boolean>(false);
@@ -270,7 +270,7 @@ export default function VideoPoker() {
         setStage("bet");
         setShowBonusOffer(false);
         setBonusCard(null);
-        setBonusFlipped(false);
+            
         // Prepare 5 back-of-cards and animate in
         setHand([]);
         setHeld([false,false,false,false,false]);
@@ -286,7 +286,7 @@ export default function VideoPoker() {
       setShowBonusOffer(false);
   // continue modal removed
       setBonusCard(null);
-      setBonusFlipped(false);
+      
       setStage("bet");
     }
   };
@@ -298,7 +298,7 @@ export default function VideoPoker() {
     const t1 = window.setTimeout(() => {
       setAnimCardsOut(false);
       setBonusCard(null);
-      setBonusFlipped(false);
+      
       setCanCollect(false);
       if (deck.length < 1) setDeck(shuffle(buildDeck()));
       setStage("bonus");
@@ -318,10 +318,7 @@ export default function VideoPoker() {
     const card = d.shift()!;
     setDeck(d);
     setBonusCard(card);
-    setBonusFlipped(false);
-    // reveal with a short flip
-    const t1 = window.setTimeout(() => setBonusFlipped(true), 80);
-    flipTimers.current.push(t1);
+    // no flip animation; show revealed card immediately
     const isRed = card.suit === "H" || card.suit === "D";
     const correct = (choice === "red") ? isRed : !isRed;
     const t2 = window.setTimeout(() => {
@@ -338,7 +335,7 @@ export default function VideoPoker() {
           const tAfterOut = window.setTimeout(() => {
             setAnimBonusOut(false);
             setBonusCard(null);
-            setBonusFlipped(false);
+            
             setAnimBonusIn(true);
             const tAfterIn = window.setTimeout(() => setAnimBonusIn(false), BONUS_IN_MS);
             flipTimers.current.push(tAfterIn);
@@ -349,21 +346,21 @@ export default function VideoPoker() {
       } else {
         setMessage("Wrong! You lost the bonus winnings.");
         setPendingWin(0);
-  // continue modal removed
+        // continue modal removed
         // Animate bonus card out and return to bet without auto-dealing new backs
         setAnimBonusOut(true);
         const tOut = window.setTimeout(() => {
           setAnimBonusOut(false);
           setStage("bet");
           setBonusCard(null);
-          setBonusFlipped(false);
+          
           // keep last hand (already cleared in bonus view) hidden; wait for player to Deal
           setAnimCardsIn(false);
           setAnimCardsOut(false);
         }, BONUS_OUT_MS);
         flipTimers.current.push(tOut);
       }
-    }, FLIP_MS + 120);
+    }, 220);
     flipTimers.current.push(t2);
   };
 
@@ -462,19 +459,12 @@ export default function VideoPoker() {
   {stage==="bonus" && (
         <section className={`bonus-area ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
           <div className="bonus-card">
-            <div className="card">
-              <div className={`card3d ${bonusFlipped ? 'is-flipped' : ''}`}>
-                <div className="card3d-inner">
-                  <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
-                  <img className="card-face card-front" src={bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
-                </div>
-              </div>
-            </div>
+            <img className="card-single" src={bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
           </div>
           <div className="bonus-actions">
             <button className="machine-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
+            <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
             <button className="machine-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
-    <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
           </div>
         </section>
       )}
@@ -482,10 +472,10 @@ export default function VideoPoker() {
   {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
           <div className="modal modal-offer">
-    <p>Double or Nothing</p>
+            <p>Double or Nothing</p>
             <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
-              <button className="machine-btn" onClick={startBonus}>YES</button>
               <button className="machine-btn" onClick={collectPending}>NO</button>
+              <button className="machine-btn" onClick={startBonus}>YES</button>
             </div>
           </div>
         </div>

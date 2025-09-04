@@ -83,6 +83,7 @@ code{color:#cbd5e1}
 .modal.modal-offer{padding:32px 36px}
 .modal.modal-offer h2{ text-align:center; font-weight:400; font-size:16px; line-height:1.2; margin:0 0 14px 0; font-family:inherit }
 .modal.modal-offer .row{ gap:20px; margin-top:12px }
+.modal.modal-offer p{ text-align:center; margin:0 0 14px 0 }
 /* Use default machine-btn sizing (no forced width) */
 .modal.modal-offer .machine-btn{ min-width:unset }
 .modal h2{margin:0 0 8px 0}
@@ -119,6 +120,7 @@ code{color:#cbd5e1}
 @keyframes bonusOut{to{transform:translateY(30px);opacity:0}}
 .bonus-area .bonus-card{display:flex;justify-content:center}
 .bonus-area .bonus-actions{display:flex;gap:16px;justify-content:center}
+.bonus-area .card-single{height:var(--card-h);aspect-ratio:2.5/3.5;object-fit:contain;display:block}
 
 /* Make Yes/No buttons in modal match machine button look */
 .modal .row .machine-btn{min-width:120px}
