@@ -277,6 +277,10 @@ export default function VideoPoker() {
     }
     // If we're in the bonus view, animate the bonus card out and bring the 5 backs in
   if (stage === "bonus") {
+    // Keep the currently visible card as-is (don't swap to back). Cancel any scheduled next-card timers.
+    clearTimers();
+    setAnimBonusIn(false);
+    setAnimBonusOut(false);
       // Briefly hold the result on screen, then slide out and return to bet
       setPendingWin(0);
       setBarFadeOut(true);
@@ -286,7 +290,7 @@ export default function VideoPoker() {
           setAnimBonusOut(false);
           setStage("bet");
           setShowBonusOffer(false);
-          setBonusCard(null);
+      setBonusCard(null); // clear after leaving bonus
           setCanCollect(false);
           // Restore previous final hand and holds; animate cards back in (face-up)
           setAnimCardsIn(true);
