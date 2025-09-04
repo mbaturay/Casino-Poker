@@ -108,9 +108,9 @@ export default function VideoPoker() {
   // UI animation durations (keep in sync with CSS)
   const CARDS_OUT_MS = 350;
   const BONUS_IN_MS = 350;
-  const BONUS_OUT_MS = 300;
+  const BONUS_OUT_MS = 350;
   const CARDS_IN_MS = 350;
-  const BONUS_PAUSE_MS = 650; // brief hold on revealed card before transitioning
+  const BONUS_PAUSE_MS = 1000; // brief hold on revealed card before transitioning
 
   const clearTimers = () => {
     flipTimers.current.forEach(id => clearTimeout(id));
