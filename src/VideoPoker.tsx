@@ -267,19 +267,7 @@ export default function VideoPoker() {
     flipTimers.current.push(t3);
   };
 
-  // Soft-fade machine bar when switching between Deal and Draw labels
-  useEffect(() => {
-    if (stage === "bet" || stage === "draw") {
-      setBarFadeOut(true);
-      const t1 = window.setTimeout(() => {
-        setBarFadeOut(false);
-        setBarFadeIn(true);
-        const t2 = window.setTimeout(() => setBarFadeIn(false), 300);
-        flipTimers.current.push(t2);
-      }, 120);
-      flipTimers.current.push(t1);
-    }
-  }, [stage]);
+  // Note: Button bar fades only when entering/exiting bonus. No fades during normal bet/draw stage changes.
 
   const collectPending = () => {
     const amount = pendingWin;
