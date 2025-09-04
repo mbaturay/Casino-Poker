@@ -107,6 +107,11 @@ export default function VideoPoker() {
   const [animBonusInRight, setAnimBonusInRight] = useState(false);
   // hide the base 5-card grid during the outgoing animation to prevent double visuals
   const [hideMainCards, setHideMainCards] = useState(false);
+  // duration for overlay fade-out
+  const [outFadeMs, setOutFadeMs] = useState<number>(800);
+  // machine bar fades
+  const [barFadeOut, setBarFadeOut] = useState(false);
+  const [barFadeIn, setBarFadeIn] = useState(false);
 
   const FLIP_MS = 350; // single flip duration
   const DEAL_STAGGER_MS = 120; // delay between cards on deal
@@ -231,7 +236,7 @@ export default function VideoPoker() {
         flipTimers.current.push(t1, t2);
         lastDelay += DRAW_STAGGER_MS;
       }
-    }
+  }
 
     // After animations, compute payout and advance stage
     const totalDelay = lastDelay + FLIP_MS + 10;
@@ -262,6 +267,20 @@ export default function VideoPoker() {
     flipTimers.current.push(t3);
   };
 
+  // Soft-fade machine bar when switching between Deal and Draw labels
+  useEffect(() => {
+    if (stage === "bet" || stage === "draw") {
+      setBarFadeOut(true);
+      const t1 = window.setTimeout(() => {
+        setBarFadeOut(false);
+        setBarFadeIn(true);
+        const t2 = window.setTimeout(() => setBarFadeIn(false), 300);
+        flipTimers.current.push(t2);
+      }, 120);
+      flipTimers.current.push(t1);
+    }
+  }, [stage]);
+
   const collectPending = () => {
     const amount = pendingWin;
     if (amount > 0) {
@@ -272,6 +291,7 @@ export default function VideoPoker() {
   if (stage === "bonus") {
       // Briefly hold the result on screen, then slide out and return to bet
       setPendingWin(0);
+      setBarFadeOut(true);
       const tPause = window.setTimeout(() => {
         setAnimBonusOut(true);
         const t1 = window.setTimeout(() => {
@@ -283,7 +303,11 @@ export default function VideoPoker() {
           // Restore previous final hand and holds; animate cards back in (face-up)
           setAnimCardsIn(true);
           const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
-          flipTimers.current.push(t2);
+          // fade bar back in with standard duration
+          setBarFadeOut(false);
+          setBarFadeIn(true);
+          const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
+          flipTimers.current.push(t2, tBarIn);
         }, BONUS_OUT_MS);
         flipTimers.current.push(t1);
       }, BONUS_PAUSE_MS);
@@ -307,9 +331,12 @@ export default function VideoPoker() {
   setHideMainCards(true);
   setOutHand(hand);
   setAnimCardsOutSeqLeft(true);
+    // fade out bar while content will change to bonus controls
+    setBarFadeOut(true);
 
     // After the last card finishes sliding out, then bring in the single back card from the right
     const totalOut = CARDS_OUT_MS + 4 * BONUS_STAGGER_MS;
+    setOutFadeMs(totalOut);
     const tOut = window.setTimeout(() => {
       setAnimCardsOutSeqLeft(false);
       setOutHand(null);
@@ -317,13 +344,17 @@ export default function VideoPoker() {
       if (deck.length < 1) setDeck(shuffle(buildDeck()));
       setBonusCard(null); // start with back-side
       setCanCollect(false);
-  setStage("bonus");
-  setHideMainCards(false);
+      setStage("bonus");
+      setHideMainCards(false);
       setAnimBonusInRight(true);
+      // swap bar content to bonus and fade in
+      setBarFadeOut(false);
+      setBarFadeIn(true);
       setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`);
 
       const tIn = window.setTimeout(() => setAnimBonusInRight(false), BONUS_IN_MS);
-      flipTimers.current.push(tIn);
+      const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
+      flipTimers.current.push(tIn, tBarIn);
     }, totalOut);
     flipTimers.current.push(tOut);
   };
@@ -367,6 +398,7 @@ export default function VideoPoker() {
         // continue modal removed
         // Hold on the revealed card briefly, then animate out and return to bet with prior hand visible
         const tPauseLose = window.setTimeout(() => {
+          setBarFadeOut(true);
           setAnimBonusOut(true);
           const tOut = window.setTimeout(() => {
             setAnimBonusOut(false);
@@ -375,7 +407,10 @@ export default function VideoPoker() {
             setCanCollect(false);
             setAnimCardsIn(true);
             const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
-            flipTimers.current.push(tIn);
+            setBarFadeOut(false);
+            setBarFadeIn(true);
+            const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
+            flipTimers.current.push(tIn, tBarIn);
           }, BONUS_OUT_MS);
           flipTimers.current.push(tOut);
         }, BONUS_PAUSE_MS);
@@ -440,7 +475,7 @@ export default function VideoPoker() {
 
   <div className="status" key={message}>{message}</div>
   <div className="playfield">
-    <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""}`}>
+  <section className={`cards ${animCardsOut?"slide-out":animCardsIn?"slide-in":""} ${stage==="bonus" && animBonusInRight?"fade-in":""}`}>
       {Array.from({length:5}).map((_,i)=>{
         if (hideMainCards && stage !== "bonus") {
           // while animating out, replace main grid with spacers to avoid visual duplication
@@ -510,7 +545,7 @@ export default function VideoPoker() {
       })}
     </section>
     {outHand && animCardsOutSeqLeft && (
-      <section className="cards out-overlay" aria-hidden>
+      <section className="cards out-overlay fade-out" style={{ animationDuration: `${outFadeMs}ms` }} aria-hidden>
         {outHand.map((c,i)=> (
           <div className="card-col" key={`out-${i}`}>
             <button className={`card slide-left`} style={{ animationDelay: `${i * BONUS_STAGGER_MS}ms` }} disabled>
@@ -542,11 +577,11 @@ export default function VideoPoker() {
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
   {/* Bottom machine-style button bar */}
-      <section className="machine-bar">
+  <section className={`machine-bar ${barFadeOut?"fade-out":""} ${barFadeIn?"fade-in":""}`}>
         {stage!=="bonus" ? (
           <>
-            <button className="machine-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
-            <button className="machine-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
+            <button className="machine-btn bar-btn" onClick={onBetOne} disabled={stage!=="bet"}>BET ONE</button>
+            <button className="machine-btn bar-btn" onClick={onMaxBet} disabled={stage!=="bet"}>MAX BET</button>
             <div className="spacer" />
             <button
               className="machine-btn primary dealdraw-btn"
@@ -558,8 +593,8 @@ export default function VideoPoker() {
           </>
         ) : (
           <>
-            <button className="machine-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
-            <button className="machine-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
+            <button className="machine-btn bar-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
+            <button className="machine-btn bar-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
             <div className="spacer" />
             <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
           </>

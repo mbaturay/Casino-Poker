@@ -5,6 +5,7 @@
 	--primary:#5865ff; /* Deal/Draw button color */
 	--dealdraw-minw:112px; /* Ensure no width shift between DEAL/DRAW */
 	--card-h:285px; /* unified playing card height */
+	--bar-side-w:128px; /* fixed width for left/right machine-bar buttons */
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%}
@@ -51,10 +52,15 @@ h1{margin:0;font-size:28px}
 /* rightward variants used for bonus transition */
 .cards.slide-out-right{animation:cardsSlideOutRight .35s ease forwards}
 .bonus-card.slide-in-right{animation:bonusInRight .35s ease forwards}
+/* cross-fade helpers */
+.fade-out{animation:fadeOut .6s ease forwards}
+.fade-in{animation:fadeIn .45s ease forwards}
 @keyframes cardsSlideOut{to{transform:translateY(30px);opacity:0}}
 @keyframes cardsSlideIn{from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1}}
 @keyframes cardsSlideOutRight{to{transform:translateX(60px);opacity:0}}
 @keyframes bonusInRight{from{transform:translateX(60px);opacity:0} to{transform:translateX(0);opacity:1}}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes fadeIn{from{opacity:0} to{opacity:1}}
 /* per-card sequential slide left used for outgoing hand */
 .card.slide-left{animation:cardSlideLeft .35s ease forwards}
 @keyframes cardSlideLeft{to{transform:translateX(-120px);opacity:0}}
@@ -114,6 +120,7 @@ code{color:#cbd5e1}
 .machine-bar{display:flex;align-items:center;gap:16px;justify-content:center;margin-top:28px}
 .machine-bar .spacer{flex:1;max-width:180px}
 .machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:5px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:600;letter-spacing:.5px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
+.machine-btn.bar-btn{width:var(--bar-side-w)}
 .machine-btn.primary{background:var(--primary);color:white}
 .machine-btn.bonus-red{background:#fff;color:#c8102e;border:1px solid #c8102e}
 .machine-btn.bonus-black{background:#fff;color:#111;border:1px solid #111}
