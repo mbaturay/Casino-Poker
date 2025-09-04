@@ -94,7 +94,8 @@ export default function VideoPoker() {
   const [bonusCard, setBonusCard] = useState<Card | null>(null);
   const [bonusFlipped, setBonusFlipped] = useState<boolean>(false);
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
-  const [showBonusContinue, setShowBonusContinue] = useState<boolean>(false);
+  // removed continue modal; no longer needed
+  const [canCollect, setCanCollect] = useState<boolean>(false);
   // UI transition animation flags
   const [animCardsOut, setAnimCardsOut] = useState(false);
   const [animCardsIn, setAnimCardsIn] = useState(false);
@@ -260,8 +261,8 @@ export default function VideoPoker() {
       setMessage(`Collected ${amount} credit${amount===1?"":"s"}.`);
     }
     // If we're in the bonus view, animate the bonus card out and bring the 5 backs in
-    if (stage === "bonus") {
-      setShowBonusContinue(false);
+  if (stage === "bonus") {
+  // continue modal removed
       setPendingWin(0);
       setAnimBonusOut(true);
       const t1 = window.setTimeout(() => {
@@ -283,7 +284,7 @@ export default function VideoPoker() {
       // Collecting from the offer (No) — no bonus shown; just reset to bet
       setPendingWin(0);
       setShowBonusOffer(false);
-      setShowBonusContinue(false);
+  // continue modal removed
       setBonusCard(null);
       setBonusFlipped(false);
       setStage("bet");
@@ -298,6 +299,7 @@ export default function VideoPoker() {
       setAnimCardsOut(false);
       setBonusCard(null);
       setBonusFlipped(false);
+      setCanCollect(false);
       if (deck.length < 1) setDeck(shuffle(buildDeck()));
       setStage("bonus");
       setAnimBonusIn(true);
@@ -324,14 +326,30 @@ export default function VideoPoker() {
     const correct = (choice === "red") ? isRed : !isRed;
     const t2 = window.setTimeout(() => {
       if (correct) {
-        setPendingWin(v => v * 2);
-        // We can't reliably read updated pendingWin immediately; compute doubled for message from prior value
-        setMessage(`Correct! Winnings doubled. Continue?`);
-        setShowBonusContinue(true);
+        setPendingWin(prev => {
+          const nv = prev * 2;
+          setMessage(`Correct! Winnings doubled to ${nv}. Guess again or collect.`);
+          return nv;
+        });
+        setCanCollect(true);
+        // slide out the revealed card and bring a new facedown
+        const tOut = window.setTimeout(() => {
+          setAnimBonusOut(true);
+          const tAfterOut = window.setTimeout(() => {
+            setAnimBonusOut(false);
+            setBonusCard(null);
+            setBonusFlipped(false);
+            setAnimBonusIn(true);
+            const tAfterIn = window.setTimeout(() => setAnimBonusIn(false), BONUS_IN_MS);
+            flipTimers.current.push(tAfterIn);
+          }, BONUS_OUT_MS);
+          flipTimers.current.push(tAfterOut);
+        }, 150);
+        flipTimers.current.push(tOut);
       } else {
         setMessage("Wrong! You lost the bonus winnings.");
         setPendingWin(0);
-        setShowBonusContinue(false);
+  // continue modal removed
         // Animate bonus card out and return to bet without auto-dealing new backs
         setAnimBonusOut(true);
         const tOut = window.setTimeout(() => {
@@ -456,14 +474,15 @@ export default function VideoPoker() {
           <div className="bonus-actions">
             <button className="machine-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
             <button className="machine-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
+    <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
           </div>
         </section>
       )}
 
-      {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
+  {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
         <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
           <div className="modal modal-offer">
-            <p className="offer-msg">Double or Nothing</p>
+    <p>Double or Nothing</p>
             <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
               <button className="machine-btn" onClick={startBonus}>YES</button>
               <button className="machine-btn" onClick={collectPending}>NO</button>
@@ -517,18 +536,7 @@ export default function VideoPoker() {
         </div>
       )}
   
-      {showBonusContinue && stage==="bonus" && pendingWin>0 && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Continue Gambling">
-          <div className="modal">
-            <h2>Double to {pendingWin}?</h2>
-            <p>Correct! Your winnings are now {pendingWin}. Keep going or collect?</p>
-            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
-              <button className="btn" onClick={collectPending}>Collect</button>
-              <button className="btn primary" onClick={()=>{ setShowBonusContinue(false); setBonusCard(null); setBonusFlipped(false); setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`); }}>Continue</button>
-            </div>
-          </div>
-        </div>
-      )}
+  {/* bonus continue modal removed in favor of inline collect flow */}
   {showWin && winDetails && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Winnings">
           <div className="modal">
