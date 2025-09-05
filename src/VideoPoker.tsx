@@ -439,6 +439,26 @@ export default function VideoPoker() {
       if (stage === "draw" && /^[1-5]$/.test(e.key)) {
         toggleHold(Number(e.key) - 1);
       }
+      // Shortcuts for the bonus offer and bonus game
+      const k = e.key.toLowerCase();
+      // Offer modal: Y = YES (start bonus), N = NO (collect)
+      if (stage === "bonus-offer" && showBonusOffer) {
+        if (k === 'y') { e.preventDefault(); startBonus(); return; }
+        if (k === 'n') { e.preventDefault(); collectPending(); return; }
+      }
+      // Bonus play: R/B/C
+      if (stage === "bonus") {
+        if (k === 'r') { e.preventDefault(); onBonusGuess('red'); return; }
+        if (k === 'b') { e.preventDefault(); onBonusGuess('black'); return; }
+        if (k === 'c') { e.preventDefault(); if (canCollect) collectPending(); return; }
+      }
+      // Bet adjustments from keyboard when idle on bet stage
+      if (stage === "bet") {
+        // + for Bet One; account for Shift+Equal as '+' on some keyboards
+        const plusPressed = e.key === '+' || (e.key === '=' && e.shiftKey);
+        if (plusPressed) { e.preventDefault(); onBetOne(); return; }
+        if (k === 'm') { e.preventDefault(); onMaxBet(); return; }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

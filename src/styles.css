@@ -151,7 +151,7 @@ code{color:#cbd5e1}
 /* playfield overlay to center modal above cards */
 .playfield{position:relative}
 /* keep overlay for centering the offer modal, but don't tint the playfield behind cards */
-.playfield-overlay{position:absolute;inset:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:10px}
+.playfield-overlay{position:absolute;inset:0;background:transparent;display:flex;align-items:center;justify-content:center;padding:24px 0}
 /* outgoing hand overlay during bonus transition */
 .out-overlay{position:absolute;left:0;right:0;top:0;bottom:0;margin:0;padding:24px 0;pointer-events:none}
 
