@@ -95,6 +95,7 @@ export default function VideoPoker() {
   const [bonusCards, setBonusCards] = useState<Card[] | null>(null); // five bonus cards, facedown initially
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
   const [bonusIndex, setBonusIndex] = useState<number>(0); // next card to reveal (0..5)
+  const [bonusLocked, setBonusLocked] = useState(false); // prevent rapid multi-guess / state race
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   // removed continue modal; no longer needed
@@ -362,15 +363,16 @@ export default function VideoPoker() {
 
   const onBonusGuess = (choice: "red" | "black") => {
     if (stage !== "bonus" || !bonusCards || !bonusRevealed) return;
-    if (bonusIndex >= 5) return;
-    const card = bonusCards[bonusIndex];
+    if (bonusIndex >= 5 || bonusLocked) return;
+    setBonusLocked(true);
+    const currentIdx = bonusIndex;
+    const card = bonusCards[currentIdx];
     const isRed = card.suit === "H" || card.suit === "D";
     const correct = (choice === "red") ? isRed : !isRed;
-    // Reveal this card immediately
-    setBonusRevealed(prev => prev ? prev.map((v, idx) => idx === bonusIndex ? true : v) : prev);
-    const nextIdx = bonusIndex + 1;
-    setBonusIndex(nextIdx);
+    // Reveal selected card
+    setBonusRevealed(prev => prev ? prev.map((v, idx) => idx === currentIdx ? true : v) : prev);
     if (correct) {
+      const nextIdx = currentIdx + 1;
       setPendingWin(prev => {
         const nv = prev * 2;
         setMessage(nextIdx >= 5
@@ -379,34 +381,35 @@ export default function VideoPoker() {
         return nv;
       });
       setCanCollect(true);
+      setBonusIndex(nextIdx);
       if (nextIdx >= 5) {
-        // Auto-collect after brief pause on the 5th correct
-        const tAuto = window.setTimeout(() => {
-          collectPending();
-        }, BONUS_PAUSE_MS);
+        const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
         flipTimers.current.push(tAuto);
+      } else {
+        // Unlock for next guess shortly after allowing repaint
+        const tUnlock = window.setTimeout(() => setBonusLocked(false), 120);
+        flipTimers.current.push(tUnlock);
       }
     } else {
       setMessage("Wrong! You lost the bonus winnings.");
       setPendingWin(0);
-      // After a brief pause, transition out of bonus and return to bet
       const tPauseLose = window.setTimeout(() => {
         setBarFadeOut(true);
         setAnimBonusOut(true);
         const tOut = window.setTimeout(() => {
           setAnimBonusOut(false);
           setStage("bet");
-          // no single-card state to clear in new bonus
           setCanCollect(false);
           setBonusCards(null);
           setBonusRevealed(null);
           setBonusIndex(0);
+          setBonusLocked(false);
           setAnimCardsIn(true);
           const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
           setBarFadeOut(false);
-          setBarFadeIn(true);
-          const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
-          flipTimers.current.push(tIn, tBarIn);
+            setBarFadeIn(true);
+            const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
+            flipTimers.current.push(tIn, tBarIn);
         }, BONUS_OUT_MS);
         flipTimers.current.push(tOut);
       }, BONUS_PAUSE_MS);
