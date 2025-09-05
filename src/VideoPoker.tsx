@@ -512,16 +512,18 @@ export default function VideoPoker() {
         }
         if (stage === "bonus") {
           // In new bonus, render five facedown cards; reveal sequentially
-          const reveal = !!bonusRevealed?.[i];
-          const img = bonusCards ? cardImage(bonusCards[i]) : "/cards/2B.svg";
+      const reveal = !!bonusRevealed?.[i];
+      const img = bonusCards ? cardImage(bonusCards[i]) : "/cards/2B.svg";
+      const shownSrc = reveal ? img : "/cards/2B.svg";
+      const shownAlt = reveal && bonusCards ? cardCode(bonusCards[i]) : "Back";
           return (
             <div className="card-col" key={`b-${i}`}>
               <div className={`bonus-card ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
                 <button className="card" disabled>
-                  <div className={`card3d ${reveal ? 'is-flipped' : ''}`}>
+          <div className="card3d">
                     <div className="card3d-inner">
-                      <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
-                      <img className="card-face card-front" src={img} alt={bonusCards ? cardCode(bonusCards[i]) : "Back"} />
+            <img className="card-face card-back" src={shownSrc} alt={shownAlt} />
+            <img className="card-face card-front" src={shownSrc} alt={shownAlt} />
                     </div>
                   </div>
                 </button>
