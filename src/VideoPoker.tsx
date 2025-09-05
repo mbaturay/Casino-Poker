@@ -94,14 +94,24 @@ export default function VideoPoker() {
   // New 5-card bonus game state
   const [bonusCards, setBonusCards] = useState<Card[] | null>(null); // five bonus cards, facedown initially
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
-  const [bonusIndex, setBonusIndex] = useState<number>(0); // next card to reveal (0..5)
   const [revealBusy, setRevealBusy] = useState(false);
   const bonusIdxRef = useRef(0);
+  // Refs to avoid stale closures for keyboard handling
+  const stageRef = useRef<Stage>(stage);
+  const showBonusOfferRef = useRef<boolean>(false);
+  const canCollectRef = useRef<boolean>(false);
+  useEffect(()=>{ stageRef.current = stage; }, [stage]);
+  // these are set after functions are defined (lower in file)
+  const onBonusGuessRef = useRef<((c: "red" | "black") => void) | null>(null);
+  const collectPendingRef = useRef<(() => void) | null>(null);
+  const startBonusRef = useRef<(() => void) | null>(null);
   // Removed bonusLocked approach; we'll guard by checking if the current card is already revealed.
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   // removed continue modal; no longer needed
   const [canCollect, setCanCollect] = useState<boolean>(false);
+  useEffect(()=>{ showBonusOfferRef.current = showBonusOffer; }, [showBonusOffer]);
+  useEffect(()=>{ canCollectRef.current = canCollect; }, [canCollect]);
   // UI transition animation flags
   const [animCardsOut, setAnimCardsOut] = useState(false);
   const [animCardsIn, setAnimCardsIn] = useState(false);
@@ -344,8 +354,7 @@ export default function VideoPoker() {
       const five = d.splice(0, 5);
       setDeck(d);
       setBonusCards(five);
-      setBonusRevealed([false, false, false, false, false]);
-  setBonusIndex(0);
+  setBonusRevealed([false, false, false, false, false]);
   bonusIdxRef.current = 0;
   // legacy single-card state removed; using bonusCards/bonusRevealed instead
       setCanCollect(false);
@@ -390,8 +399,7 @@ export default function VideoPoker() {
           : `Correct! Winnings doubled to ${nv}. Choose again or collect (card ${nextIdx+1} of 5).`);
         return nv;
       });
-      setCanCollect(true);
-  setBonusIndex(nextIdx);
+  setCanCollect(true);
   bonusIdxRef.current = nextIdx;
       if (nextIdx >= 5) {
         const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
@@ -413,7 +421,6 @@ export default function VideoPoker() {
           setCanCollect(false);
           setBonusCards(null);
           setBonusRevealed(null);
-          setBonusIndex(0);
           setAnimCardsIn(true);
           const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
           setBarFadeOut(false);
@@ -430,6 +437,11 @@ export default function VideoPoker() {
     }
   };
 
+  // Keep refs in sync with latest callbacks for the stable key handler
+  useEffect(() => { onBonusGuessRef.current = onBonusGuess; });
+  useEffect(() => { collectPendingRef.current = collectPending; });
+  useEffect(() => { startBonusRef.current = startBonus; });
+
   const onBetOne = () => { if (stage==="bet") setBet(b => (b % 5) + 1); };
   const onMaxBet = () => { if (stage==="bet") setBet(5); };
   const onDealOrDraw = () => {
@@ -437,7 +449,7 @@ export default function VideoPoker() {
     if (stage === "draw") return onDraw();
   };
 
-  // keyboard shortcuts
+  // keyboard shortcuts (stable listener using refs)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const active = document.activeElement as HTMLElement | null;
@@ -449,27 +461,27 @@ export default function VideoPoker() {
       }
       if (e.code === "Space") {
         e.preventDefault();
-        if (stage === "bet") onDeal();
-        else if (stage === "draw") onDraw();
+        if (stageRef.current === "bet") onDeal();
+        else if (stageRef.current === "draw") onDraw();
       }
-      if (stage === "draw" && /^[1-5]$/.test(e.key)) {
+      if (stageRef.current === "draw" && /^[1-5]$/.test(e.key)) {
         toggleHold(Number(e.key) - 1);
       }
       // Shortcuts for the bonus offer and bonus game
       const k = e.key.toLowerCase();
       // Offer modal: Y = YES (start bonus), N = NO (collect)
-      if (stage === "bonus-offer" && showBonusOffer) {
-        if (k === 'y') { e.preventDefault(); startBonus(); return; }
-        if (k === 'n') { e.preventDefault(); collectPending(); return; }
+      if (stageRef.current === "bonus-offer" && showBonusOfferRef.current) {
+        if (k === 'y') { e.preventDefault(); startBonusRef.current?.(); return; }
+        if (k === 'n') { e.preventDefault(); collectPendingRef.current?.(); return; }
       }
       // Bonus play: R/B/C
-      if (stage === "bonus") {
-        if (k === 'r') { e.preventDefault(); onBonusGuess('red'); return; }
-        if (k === 'b') { e.preventDefault(); onBonusGuess('black'); return; }
-        if (k === 'c') { e.preventDefault(); if (canCollect) collectPending(); return; }
+      if (stageRef.current === "bonus") {
+        if (k === 'r') { e.preventDefault(); onBonusGuessRef.current?.('red'); return; }
+        if (k === 'b') { e.preventDefault(); onBonusGuessRef.current?.('black'); return; }
+        if (k === 'c') { e.preventDefault(); if (canCollectRef.current) collectPendingRef.current?.(); return; }
       }
       // Bet adjustments from keyboard when idle on bet stage
-      if (stage === "bet") {
+      if (stageRef.current === "bet") {
         // + for Bet One; account for Shift+Equal as '+' on some keyboards
         const plusPressed = e.key === '+' || (e.key === '=' && e.shiftKey);
         if (plusPressed) { e.preventDefault(); onBetOne(); return; }
@@ -478,7 +490,7 @@ export default function VideoPoker() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [stage, hand, held, bet, credits, showOutOfCredits, showBonusOffer, canCollect, bonusIndex, bonusCards, bonusRevealed]);
+  }, [showOutOfCredits]);
 
   const cardImage = (c?: Card) => c ? `/cards/${cardCode(c)}.svg` : "/cards/2B.svg";
   const canDeal = stage==="bet" && credits>=bet;
