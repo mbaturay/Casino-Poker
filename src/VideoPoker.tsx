@@ -462,7 +462,7 @@ export default function VideoPoker() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [stage, hand, held, bet, credits, showOutOfCredits]);
+  }, [stage, hand, held, bet, credits, showOutOfCredits, showBonusOffer, canCollect]);
 
   const cardImage = (c?: Card) => c ? `/cards/${cardCode(c)}.svg` : "/cards/2B.svg";
   const canDeal = stage==="bet" && credits>=bet;
@@ -569,18 +569,19 @@ export default function VideoPoker() {
         ))}
       </section>
     )}
-  </div>
-  {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
-        <div className="modal-overlay playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
-          <div className="modal modal-offer">
-            <p>Double or Nothing</p>
-            <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
-              <button className="machine-btn" onClick={collectPending}>NO</button>
-              <button className="machine-btn" onClick={startBonus}>YES</button>
-            </div>
+    {/* Centered bonus offer modal within the playfield */}
+    {showBonusOffer && stage==="bonus-offer" && pendingWin>0 && (
+      <div className="playfield-overlay" role="dialog" aria-modal="true" aria-label="Double or Nothing">
+        <div className="modal modal-offer">
+          <p>Double or Nothing</p>
+          <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
+            <button className="machine-btn" onClick={collectPending}>NO</button>
+            <button className="machine-btn" onClick={startBonus}>YES</button>
           </div>
         </div>
-  )}
+      </div>
+    )}
+  </div>
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
