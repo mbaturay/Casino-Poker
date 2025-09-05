@@ -95,7 +95,7 @@ export default function VideoPoker() {
   const [bonusCards, setBonusCards] = useState<Card[] | null>(null); // five bonus cards, facedown initially
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
   const [bonusIndex, setBonusIndex] = useState<number>(0); // next card to reveal (0..5)
-  const [bonusLocked, setBonusLocked] = useState(false); // prevent rapid multi-guess / state race
+  // Removed bonusLocked approach; we'll guard by checking if the current card is already revealed.
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   // removed continue modal; no longer needed
@@ -362,9 +362,9 @@ export default function VideoPoker() {
   };
 
   const onBonusGuess = (choice: "red" | "black") => {
-    if (stage !== "bonus" || !bonusCards || !bonusRevealed) return;
-    if (bonusIndex >= 5 || bonusLocked) return;
-    setBonusLocked(true);
+  if (stage !== "bonus" || !bonusCards || !bonusRevealed) return;
+  if (bonusIndex >= 5) return;
+  if (bonusRevealed[bonusIndex]) return; // already revealed (guard against rapid key presses)
     const currentIdx = bonusIndex;
     const card = bonusCards[currentIdx];
     const isRed = card.suit === "H" || card.suit === "D";
@@ -386,9 +386,7 @@ export default function VideoPoker() {
         const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
         flipTimers.current.push(tAuto);
       } else {
-        // Unlock for next guess shortly after allowing repaint
-        const tUnlock = window.setTimeout(() => setBonusLocked(false), 120);
-        flipTimers.current.push(tUnlock);
+        // Ready immediately for next guess (no artificial lock)
       }
     } else {
       setMessage("Wrong! You lost the bonus winnings.");
@@ -403,7 +401,6 @@ export default function VideoPoker() {
           setBonusCards(null);
           setBonusRevealed(null);
           setBonusIndex(0);
-          setBonusLocked(false);
           setAnimCardsIn(true);
           const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
           setBarFadeOut(false);
