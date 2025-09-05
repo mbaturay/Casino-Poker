@@ -95,6 +95,7 @@ export default function VideoPoker() {
   const [bonusCards, setBonusCards] = useState<Card[] | null>(null); // five bonus cards, facedown initially
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
   const [bonusIndex, setBonusIndex] = useState<number>(0); // next card to reveal (0..5)
+  const [revealBusy, setRevealBusy] = useState(false);
   // Removed bonusLocked approach; we'll guard by checking if the current card is already revealed.
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
@@ -364,13 +365,20 @@ export default function VideoPoker() {
   const onBonusGuess = (choice: "red" | "black") => {
   if (stage !== "bonus" || !bonusCards || !bonusRevealed) return;
   if (bonusIndex >= 5) return;
+  if (revealBusy) return;
   if (bonusRevealed[bonusIndex]) return; // already revealed (guard against rapid key presses)
-    const currentIdx = bonusIndex;
-    const card = bonusCards[currentIdx];
-    const isRed = card.suit === "H" || card.suit === "D";
+  const currentIdx = bonusIndex;
+  const card = bonusCards[currentIdx];
+  const isRed = card.suit === "H" || card.suit === "D";
+  setRevealBusy(true);
     const correct = (choice === "red") ? isRed : !isRed;
     // Reveal selected card
-    setBonusRevealed(prev => prev ? prev.map((v, idx) => idx === currentIdx ? true : v) : prev);
+    setBonusRevealed(prev => {
+      if (!prev) return prev;
+      const next = prev.slice();
+      next[currentIdx] = true;
+      return next;
+    });
     if (correct) {
       const nextIdx = currentIdx + 1;
       setPendingWin(prev => {
@@ -386,12 +394,14 @@ export default function VideoPoker() {
         const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
         flipTimers.current.push(tAuto);
       } else {
-        // Ready immediately for next guess (no artificial lock)
+        // Give a tiny window to paint the reveal before accepting next input
+        const tReady = window.setTimeout(() => setRevealBusy(false), 80);
+        flipTimers.current.push(tReady);
       }
     } else {
       setMessage("Wrong! You lost the bonus winnings.");
       setPendingWin(0);
-      const tPauseLose = window.setTimeout(() => {
+  const tPauseLose = window.setTimeout(() => {
         setBarFadeOut(true);
         setAnimBonusOut(true);
         const tOut = window.setTimeout(() => {
@@ -462,7 +472,7 @@ export default function VideoPoker() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [stage, hand, held, bet, credits, showOutOfCredits, showBonusOffer, canCollect]);
+  }, [stage, hand, held, bet, credits, showOutOfCredits, showBonusOffer, canCollect, bonusIndex, bonusCards, bonusRevealed]);
 
   const cardImage = (c?: Card) => c ? `/cards/${cardCode(c)}.svg` : "/cards/2B.svg";
   const canDeal = stage==="bet" && credits>=bet;
