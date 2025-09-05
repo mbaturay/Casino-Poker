@@ -91,7 +91,10 @@ export default function VideoPoker() {
   const [showOutOfCredits, setShowOutOfCredits] = useState(false);
   // Bonus mini-game state
   const [pendingWin, setPendingWin] = useState<number>(0); // winnings available to gamble/collect
-  const [bonusCard, setBonusCard] = useState<Card | null>(null);
+  // New 5-card bonus game state
+  const [bonusCards, setBonusCards] = useState<Card[] | null>(null); // five bonus cards, facedown initially
+  const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
+  const [bonusIndex, setBonusIndex] = useState<number>(0); // next card to reveal (0..5)
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   // removed continue modal; no longer needed
@@ -290,7 +293,7 @@ export default function VideoPoker() {
           setAnimBonusOut(false);
           setStage("bet");
           setShowBonusOffer(false);
-      setBonusCard(null); // clear after leaving bonus
+          // no single-card state to clear in new bonus
           setCanCollect(false);
           // Restore previous final hand and holds; animate cards back in (face-up)
           setAnimCardsIn(true);
@@ -307,9 +310,8 @@ export default function VideoPoker() {
     } else {
       // Collecting from the offer (No) — no bonus shown; just reset to bet
       setPendingWin(0);
-      setShowBonusOffer(false);
-  // continue modal removed
-      setBonusCard(null);
+    setShowBonusOffer(false);
+  // continue modal removed; no single-card state in new bonus
       
       setStage("bet");
     }
@@ -326,23 +328,30 @@ export default function VideoPoker() {
     // fade out bar while content will change to bonus controls
     setBarFadeOut(true);
 
-    // After the last card finishes sliding out, then bring in the single back card from the right
+    // After the last card finishes sliding out, then bring in five facedown bonus cards
     const totalOut = CARDS_OUT_MS + 4 * BONUS_STAGGER_MS;
     setOutFadeMs(totalOut);
     const tOut = window.setTimeout(() => {
       setAnimCardsOutSeqLeft(false);
       setOutHand(null);
 
-      if (deck.length < 1) setDeck(shuffle(buildDeck()));
-      setBonusCard(null); // start with back-side
+      // Prepare 5 bonus cards, all facedown
+      let d = [...deck];
+      if (d.length < 5) d = shuffle(buildDeck());
+      const five = d.splice(0, 5);
+      setDeck(d);
+      setBonusCards(five);
+      setBonusRevealed([false, false, false, false, false]);
+  setBonusIndex(0);
+  // legacy single-card state removed; using bonusCards/bonusRevealed instead
       setCanCollect(false);
       setStage("bonus");
       setHideMainCards(false);
-      setAnimBonusInRight(true);
+      setAnimBonusInRight(true); // reuse for a gentle fade-in of the board
       // swap bar content to bonus and fade in
       setBarFadeOut(false);
       setBarFadeIn(true);
-      setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK.`);
+      setMessage(`Gamble ${pendingWin} credit${pendingWin===1?"":"s"}: choose RED or BLACK (card 1 of 5).`);
 
       const tIn = window.setTimeout(() => setAnimBonusInRight(false), BONUS_IN_MS);
       const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
@@ -352,64 +361,57 @@ export default function VideoPoker() {
   };
 
   const onBonusGuess = (choice: "red" | "black") => {
-    if (stage !== "bonus") return;
-    // draw a card from deck (reshuffle if empty)
-    let d = [...deck];
-    if (d.length < 1) d = shuffle(buildDeck());
-    const card = d.shift()!;
-    setDeck(d);
-    setBonusCard(card);
-    // no flip animation; show revealed card immediately
+    if (stage !== "bonus" || !bonusCards || !bonusRevealed) return;
+    if (bonusIndex >= 5) return;
+    const card = bonusCards[bonusIndex];
     const isRed = card.suit === "H" || card.suit === "D";
     const correct = (choice === "red") ? isRed : !isRed;
-    const t2 = window.setTimeout(() => {
-      if (correct) {
-        setPendingWin(prev => {
-          const nv = prev * 2;
-          setMessage(`Correct! Winnings doubled to ${nv}. Guess again or collect.`);
-          return nv;
-        });
-        setCanCollect(true);
-        // slide out the revealed card and bring a new facedown
-        const tOut = window.setTimeout(() => {
-          setAnimBonusOut(true);
-          const tAfterOut = window.setTimeout(() => {
-            setAnimBonusOut(false);
-            setBonusCard(null);
-            
-            setAnimBonusIn(true);
-            const tAfterIn = window.setTimeout(() => setAnimBonusIn(false), BONUS_IN_MS);
-            flipTimers.current.push(tAfterIn);
-          }, BONUS_OUT_MS);
-          flipTimers.current.push(tAfterOut);
+    // Reveal this card immediately
+    setBonusRevealed(prev => prev ? prev.map((v, idx) => idx === bonusIndex ? true : v) : prev);
+    const nextIdx = bonusIndex + 1;
+    setBonusIndex(nextIdx);
+    if (correct) {
+      setPendingWin(prev => {
+        const nv = prev * 2;
+        setMessage(nextIdx >= 5
+          ? `Correct! That's 5 of 5. Collecting ${nv} and returning to game.`
+          : `Correct! Winnings doubled to ${nv}. Choose again or collect (card ${nextIdx+1} of 5).`);
+        return nv;
+      });
+      setCanCollect(true);
+      if (nextIdx >= 5) {
+        // Auto-collect after brief pause on the 5th correct
+        const tAuto = window.setTimeout(() => {
+          collectPending();
         }, BONUS_PAUSE_MS);
-        flipTimers.current.push(tOut);
-      } else {
-        setMessage("Wrong! You lost the bonus winnings.");
-        setPendingWin(0);
-        // continue modal removed
-        // Hold on the revealed card briefly, then animate out and return to bet with prior hand visible
-        const tPauseLose = window.setTimeout(() => {
-          setBarFadeOut(true);
-          setAnimBonusOut(true);
-          const tOut = window.setTimeout(() => {
-            setAnimBonusOut(false);
-            setStage("bet");
-            setBonusCard(null);
-            setCanCollect(false);
-            setAnimCardsIn(true);
-            const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
-            setBarFadeOut(false);
-            setBarFadeIn(true);
-            const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
-            flipTimers.current.push(tIn, tBarIn);
-          }, BONUS_OUT_MS);
-          flipTimers.current.push(tOut);
-        }, BONUS_PAUSE_MS);
-        flipTimers.current.push(tPauseLose);
+        flipTimers.current.push(tAuto);
       }
-    }, 220);
-    flipTimers.current.push(t2);
+    } else {
+      setMessage("Wrong! You lost the bonus winnings.");
+      setPendingWin(0);
+      // After a brief pause, transition out of bonus and return to bet
+      const tPauseLose = window.setTimeout(() => {
+        setBarFadeOut(true);
+        setAnimBonusOut(true);
+        const tOut = window.setTimeout(() => {
+          setAnimBonusOut(false);
+          setStage("bet");
+          // no single-card state to clear in new bonus
+          setCanCollect(false);
+          setBonusCards(null);
+          setBonusRevealed(null);
+          setBonusIndex(0);
+          setAnimCardsIn(true);
+          const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
+          setBarFadeOut(false);
+          setBarFadeIn(true);
+          const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
+          flipTimers.current.push(tIn, tBarIn);
+        }, BONUS_OUT_MS);
+        flipTimers.current.push(tOut);
+      }, BONUS_PAUSE_MS);
+      flipTimers.current.push(tPauseLose);
+    }
   };
 
   const onBetOne = () => { if (stage==="bet") setBet(b => (b % 5) + 1); };
@@ -479,27 +481,21 @@ export default function VideoPoker() {
           );
         }
         if (stage === "bonus") {
-          // In bonus, render the single card in the middle (3rd) slot; others are spacers
+          // In new bonus, render five facedown cards; reveal sequentially
+          const reveal = !!bonusRevealed?.[i];
+          const img = bonusCards ? cardImage(bonusCards[i]) : "/cards/2B.svg";
           return (
             <div className="card-col" key={`b-${i}`}>
-              {i === 2 ? (
-                <div className={`bonus-card ${animBonusIn?"slide-in":animBonusOut?"slide-out":""} ${animBonusInRight?"slide-in-right":""}`}>
-                  <button className="card" disabled>
-                    <div className="card3d">
-                      <div className="card3d-inner">
-                        {(() => { const imgSrc = bonusCard ? cardImage(bonusCard) : "/cards/2B.svg"; return (
-                          <>
-                            <img className="card-face card-back" src={imgSrc} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
-                            <img className="card-face card-front" src={imgSrc} alt={bonusCard ? cardCode(bonusCard) : "Back"} />
-                          </>
-                        ); })()}
-                      </div>
+              <div className={`bonus-card ${animBonusIn?"slide-in":animBonusOut?"slide-out":""}`}>
+                <button className="card" disabled>
+                  <div className={`card3d ${reveal ? 'is-flipped' : ''}`}>
+                    <div className="card3d-inner">
+                      <img className="card-face card-back" src="/cards/2B.svg" alt="Back" />
+                      <img className="card-face card-front" src={img} alt={bonusCards ? cardCode(bonusCards[i]) : "Back"} />
                     </div>
-                  </button>
-                </div>
-              ) : (
-                <div className="card-spacer" />
-              )}
+                  </div>
+                </button>
+              </div>
               <div className="held-slot"><div className="held-label" style={{opacity:0}}>&nbsp;</div></div>
             </div>
           );
