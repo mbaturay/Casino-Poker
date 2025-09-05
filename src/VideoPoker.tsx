@@ -96,6 +96,7 @@ export default function VideoPoker() {
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
   const [bonusIndex, setBonusIndex] = useState<number>(0); // next card to reveal (0..5)
   const [revealBusy, setRevealBusy] = useState(false);
+  const bonusIdxRef = useRef(0);
   // Removed bonusLocked approach; we'll guard by checking if the current card is already revealed.
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
@@ -345,6 +346,7 @@ export default function VideoPoker() {
       setBonusCards(five);
       setBonusRevealed([false, false, false, false, false]);
   setBonusIndex(0);
+  bonusIdxRef.current = 0;
   // legacy single-card state removed; using bonusCards/bonusRevealed instead
       setCanCollect(false);
       setStage("bonus");
@@ -363,11 +365,11 @@ export default function VideoPoker() {
   };
 
   const onBonusGuess = (choice: "red" | "black") => {
-  if (stage !== "bonus" || !bonusCards || !bonusRevealed) return;
-  if (bonusIndex >= 5) return;
+  if (stage !== "bonus" || !bonusCards || !bonusRevealed || bonusCards.length < 5 || bonusRevealed.length < 5) return;
   if (revealBusy) return;
-  if (bonusRevealed[bonusIndex]) return; // already revealed (guard against rapid key presses)
-  const currentIdx = bonusIndex;
+  const currentIdx = bonusIdxRef.current;
+  if (currentIdx >= 5) return;
+  if (bonusRevealed[currentIdx]) return; // already revealed (guard against rapid key presses)
   const card = bonusCards[currentIdx];
   const isRed = card.suit === "H" || card.suit === "D";
   setRevealBusy(true);
@@ -380,7 +382,7 @@ export default function VideoPoker() {
       return next;
     });
     if (correct) {
-      const nextIdx = currentIdx + 1;
+  const nextIdx = currentIdx + 1;
       setPendingWin(prev => {
         const nv = prev * 2;
         setMessage(nextIdx >= 5
@@ -389,7 +391,8 @@ export default function VideoPoker() {
         return nv;
       });
       setCanCollect(true);
-      setBonusIndex(nextIdx);
+  setBonusIndex(nextIdx);
+  bonusIdxRef.current = nextIdx;
       if (nextIdx >= 5) {
         const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
         flipTimers.current.push(tAuto);
@@ -421,6 +424,9 @@ export default function VideoPoker() {
         flipTimers.current.push(tOut);
       }, BONUS_PAUSE_MS);
       flipTimers.current.push(tPauseLose);
+      // Also ensure revealBusy clears even if we’re transitioning out
+      const tClear = window.setTimeout(() => setRevealBusy(false), BONUS_PAUSE_MS + BONUS_OUT_MS + 50);
+      flipTimers.current.push(tClear);
     }
   };
 
@@ -612,10 +618,10 @@ export default function VideoPoker() {
               {stage === "draw" ? "DRAW" : "DEAL"}
             </button>
           </>
-        ) : (
+    ) : (
           <>
-            <button className="machine-btn bar-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")}>RED</button>
-            <button className="machine-btn bar-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")}>BLACK</button>
+      <button className="machine-btn bar-btn dealdraw-btn bonus-red" onClick={()=>onBonusGuess("red")} disabled={revealBusy}>RED</button>
+      <button className="machine-btn bar-btn dealdraw-btn bonus-black" onClick={()=>onBonusGuess("black")} disabled={revealBusy}>BLACK</button>
             <div className="spacer" />
             <button className="machine-btn primary dealdraw-btn" onClick={collectPending} disabled={!canCollect}>COLLECT</button>
           </>
