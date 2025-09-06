@@ -530,11 +530,11 @@ export default function VideoPoker() {
       <header className="top">
         <img src="/img/JacksOrBetter.png" alt="Jacks or Better" className="logo" />
         <div className="bank">
-          <div className="panel">
-            <div className="label">Credits</div>
+          <div className="panel panel-balance" aria-label="Balance">
+            <div className="label">Balance</div>
             <div className="value">{credits}</div>
           </div>
-          <div className="panel">
+          <div className="panel" aria-label="Bet">
             <div className="label">Bet</div>
             <div className="value">{bet}</div>
           </div>

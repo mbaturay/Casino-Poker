@@ -15,9 +15,17 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 h1{margin:0;font-size:28px}
 .logo{width:216px;height:144px;image-rendering:auto}
 .bank{display:flex;gap:12px}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 14px;min-width:110px}
-.label{font-size:11px;opacity:.7;text-transform:uppercase}
-.value{font-weight:700;font-size:20px}
+.panel{background:linear-gradient(180deg, rgba(31,41,55,.9), rgba(17,24,39,.9));border:1px solid var(--border);border-radius:14px;padding:12px 16px;min-width:130px;position:relative;overflow:hidden}
+.panel::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 40px rgba(255,255,255,.03)}
+.label{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.06em}
+.value{font-weight:800;font-size:26px;line-height:1.1}
+/* Balance emphasis */
+.panel-balance{border-color:#2a3b66;box-shadow:0 0 0 1px rgba(52,101,255,.15), 0 10px 24px rgba(0,0,0,.25)}
+.panel-balance .label{color:#a9bbff}
+.panel-balance .value{font-size:30px;color:#eaf0ff;text-shadow:0 0 18px rgba(98,118,255,.25)}
+/* Optional small glyphs */
+.panel-balance .label::before{content:"\1F4B0"; /* money bag */ margin-right:6px}
+.panel[aria-label="Bet"] .label::before{content:"\2696\FE0F"; /* scales */ margin-right:6px}
 /* paytable modal redesign */
 .modal.modal-paytable .paytable-board{
 	/* paytable theme colors */
