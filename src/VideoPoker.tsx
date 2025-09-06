@@ -96,6 +96,8 @@ export default function VideoPoker() {
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
   const [revealBusy, setRevealBusy] = useState(false);
   const bonusIdxRef = useRef(0);
+  // Store the starting payout for the bonus to render actual ladder values
+  const [bonusBase, setBonusBase] = useState<number | null>(null);
   // Refs to avoid stale closures for keyboard handling
   const stageRef = useRef<Stage>(stage);
   const showBonusOfferRef = useRef<boolean>(false);
@@ -327,6 +329,7 @@ export default function VideoPoker() {
           // no single-card state to clear in new bonus
           setCanCollect(false);
           fivePerfectRef.current = false; // ensure cleared for next round
+          setBonusBase(null);
           // Restore previous final hand and holds; animate cards back in (face-up)
           setAnimCardsIn(true);
           const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
@@ -353,6 +356,7 @@ export default function VideoPoker() {
     // Hide modal immediately
     setShowBonusOffer(false);
   fivePerfectRef.current = false;
+  setBonusBase(pendingWin);
   // Snapshot current 5-card hand and slide each card out left with stagger.
   // Hide the base grid first to avoid any one-frame layout shift.
   setHideMainCards(true);
@@ -435,6 +439,7 @@ export default function VideoPoker() {
       setMessage("Wrong! You lost the bonus winnings.");
       setPendingWin(0);
       fivePerfectRef.current = false;
+  setBonusBase(null);
   const tPauseLose = window.setTimeout(() => {
         setBarFadeOut(true);
         setAnimBonusOut(true);
@@ -639,13 +644,14 @@ export default function VideoPoker() {
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
-  {/* Bonus status: card index, multiplier ladder, and +100 perfect badge */}
+  {/* Bonus status: card index, credit ladder from base, and +100 perfect badge */}
   {stage === "bonus" && (
     <div className="bonus-status" aria-live="polite">
       {(() => {
         const rev = (bonusRevealed?.filter(Boolean).length) ?? 0;
         const currentCard = Math.min(rev + (rev < 5 ? 1 : 0), 5);
-        const steps = [2,4,8,16,32];
+        const base = bonusBase ?? pendingWin; // fallback to current for safety
+        const steps = [1,2,4,8,16,32].slice(1); // multipliers, but we'll show credits
         return (
           <>
             <div className="bonus-status-row">
@@ -656,9 +662,9 @@ export default function VideoPoker() {
                     key={m}
                     className={`bonus-step ${i < rev ? 'done' : ''} ${i === rev && rev < 5 ? 'current' : ''}`}
                     aria-current={i === rev && rev < 5 ? 'step' : undefined}
-                    aria-label={`x${m}${i < rev ? ' achieved' : i === rev ? ' current' : ''}`}
+                    aria-label={`${base * m} credits${i < rev ? ' achieved' : i === rev ? ' current' : ''}`}
                   >
-                    x{m}
+                    {base * m}
                   </div>
                 ))}
                 <div className={`bonus-badge ${rev === 5 ? 'active' : ''}`} aria-label={rev===5?'+100 perfect achieved':'+100 for perfect'}>+100</div>
