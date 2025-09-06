@@ -535,11 +535,11 @@ export default function VideoPoker() {
         <div className="bank">
           <div className="panel panel-balance" aria-label="Balance">
             <div className="label">Balance</div>
-            <div className="value">{credits}</div>
+            <div className="value value-hand">{credits}</div>
           </div>
           <div className="panel" aria-label="Bet">
             <div className="label">Bet</div>
-            <div className="value">{bet}</div>
+            <div className="value value-hand">{bet}</div>
           </div>
         </div>
         <button className="btn" onClick={() => setShowPaytable(true)}>Show Paytable</button>
