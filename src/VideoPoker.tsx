@@ -299,15 +299,15 @@ export default function VideoPoker() {
   // Note: Button bar fades only when entering/exiting bonus. No fades during normal bet/draw stage changes.
 
   const collectPending = () => {
-    // Include +100 if we just achieved a perfect 5-of-5 streak in the bonus
-    const extra = (stage === "bonus" && fivePerfectRef.current) ? 100 : 0;
+    // If perfect 5-of-5, double the final value as the "bonus of the bonus"
+    const extra = (stage === "bonus" && fivePerfectRef.current) ? pendingWin : 0;
     if (fivePerfectRef.current) fivePerfectRef.current = false; // consume the flag
     const amount = pendingWin + extra;
     if (amount > 0) {
       setCredits(c => c + amount);
       setMessage(
         extra > 0
-          ? `Collected ${amount} credits (includes +100 perfect streak bonus).`
+          ? `Collected ${amount} credits (perfect ×2).`
           : `Collected ${amount} credit${amount===1?"":"s"}.`
       );
     }
@@ -419,7 +419,7 @@ export default function VideoPoker() {
       setPendingWin(prev => {
         const nv = prev * 2;
         setMessage(nextIdx >= 5
-          ? `Correct! That's 5 of 5. Collecting ${nv + 100} (includes +100 bonus) and returning to game.`
+          ? `Correct! That's 5 of 5. Collecting ${nv * 2} (perfect ×2) and returning to game.`
           : `Correct! Winnings doubled to ${nv}. Choose again or collect (card ${nextIdx+1} of 5).`);
         return nv;
       });
@@ -667,7 +667,7 @@ export default function VideoPoker() {
                     {base * m}
                   </div>
                 ))}
-                <div className={`bonus-badge ${rev === 5 ? 'active' : ''}`} aria-label={rev===5?'+100 perfect achieved':'+100 for perfect'}>+100</div>
+                <div className={`bonus-badge ${rev === 5 ? 'active' : ''}`} aria-label={rev===5?'x2 final achieved':'x2 final on perfect'}>x2 FINAL</div>
               </div>
             </div>
           </>

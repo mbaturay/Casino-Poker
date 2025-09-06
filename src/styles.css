@@ -166,6 +166,6 @@ code{color:#cbd5e1}
 .bonus-step{min-width:42px;text-align:center;padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:#0f172a;color:var(--text);font-size:12px;opacity:.7}
 .bonus-step.done{background:#13233a;opacity:1;border-color:#1d3352}
 .bonus-step.current{outline:2px solid var(--accent);opacity:1}
-.bonus-badge{margin-left:6px;padding:4px 8px;border-radius:999px;background:#1f2937;border:1px solid var(--border);color:#ffe082;font-weight:700;font-size:12px;opacity:.75}
-.bonus-badge.active{background:#3a2a0a;color:#ffe08a;opacity:1;outline:2px solid #d6a200}
+.bonus-badge{margin-left:6px;padding:4px 10px;border-radius:999px;background:#1f2937;border:1px solid var(--border);color:#ffe082;font-weight:700;font-size:12px;opacity:.75;letter-spacing:.5px}
+.bonus-badge.active{background:#142a10;color:#b3ff9e;opacity:1;outline:2px solid #34d399}
 
