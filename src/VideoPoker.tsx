@@ -91,6 +91,8 @@ export default function VideoPoker() {
   const [showOutOfCredits, setShowOutOfCredits] = useState(false);
   // Bonus mini-game state
   const [pendingWin, setPendingWin] = useState<number>(0); // winnings available to gamble/collect
+  const pendingWinRef = useRef<number>(0);
+  useEffect(() => { pendingWinRef.current = pendingWin; }, [pendingWin]);
   // New 5-card bonus game state
   const [bonusCards, setBonusCards] = useState<Card[] | null>(null); // five bonus cards, facedown initially
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
@@ -300,9 +302,10 @@ export default function VideoPoker() {
 
   const collectPending = () => {
     // If perfect 5-of-5, double the final value as the "bonus of the bonus"
-    const extra = (stage === "bonus" && fivePerfectRef.current) ? pendingWin : 0;
+    const currentPending = pendingWinRef.current;
+    const extra = (stage === "bonus" && fivePerfectRef.current) ? currentPending : 0;
     if (fivePerfectRef.current) fivePerfectRef.current = false; // consume the flag
-    const amount = pendingWin + extra;
+    const amount = currentPending + extra;
     if (amount > 0) {
       setCredits(c => c + amount);
       setMessage(
@@ -318,7 +321,7 @@ export default function VideoPoker() {
     setAnimBonusIn(false);
     setAnimBonusOut(false);
       // Briefly hold the result on screen, then slide out and return to bet
-      setPendingWin(0);
+  setPendingWin(0);
       setBarFadeOut(true);
       const tPause = window.setTimeout(() => {
         setAnimBonusOut(true);
@@ -426,9 +429,9 @@ export default function VideoPoker() {
   setCanCollect(true);
   bonusIdxRef.current = nextIdx;
       if (nextIdx >= 5) {
-        // Mark perfect streak to award +100 on collection
+        // Mark perfect streak and auto-collect using latest function/state via ref
         fivePerfectRef.current = true;
-        const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
+        const tAuto = window.setTimeout(() => { collectPendingRef.current?.(); }, BONUS_PAUSE_MS);
         flipTimers.current.push(tAuto);
       } else {
         // Give a tiny window to paint the reveal before accepting next input
