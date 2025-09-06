@@ -105,11 +105,17 @@ export default function VideoPoker() {
   const onBonusGuessRef = useRef<((c: "red" | "black") => void) | null>(null);
   const collectPendingRef = useRef<(() => void) | null>(null);
   const startBonusRef = useRef<(() => void) | null>(null);
+  // Track a perfect 5-of-5 streak to award an extra +100 credits on collection
+  const fivePerfectRef = useRef<boolean>(false);
   // Removed bonusLocked approach; we'll guard by checking if the current card is already revealed.
   // no 3D flip in bonus anymore
   const [showBonusOffer, setShowBonusOffer] = useState<boolean>(false);
   // removed continue modal; no longer needed
   const [canCollect, setCanCollect] = useState<boolean>(false);
+  // Refs for normal gameplay callbacks to avoid stale closures in key handler
+  const onDealRef = useRef<(() => void) | null>(null);
+  const onDrawRef = useRef<(() => void) | null>(null);
+  const toggleHoldRef = useRef<((i: number) => void) | null>(null);
   useEffect(()=>{ showBonusOfferRef.current = showBonusOffer; }, [showBonusOffer]);
   useEffect(()=>{ canCollectRef.current = canCollect; }, [canCollect]);
   // UI transition animation flags
@@ -283,13 +289,25 @@ export default function VideoPoker() {
     flipTimers.current.push(t3);
   };
 
+  // Keep normal gameplay refs current for stable key handling
+  useEffect(() => { onDealRef.current = onDeal; });
+  useEffect(() => { onDrawRef.current = onDraw; });
+  useEffect(() => { toggleHoldRef.current = toggleHold; });
+
   // Note: Button bar fades only when entering/exiting bonus. No fades during normal bet/draw stage changes.
 
   const collectPending = () => {
-    const amount = pendingWin;
+    // Include +100 if we just achieved a perfect 5-of-5 streak in the bonus
+    const extra = (stage === "bonus" && fivePerfectRef.current) ? 100 : 0;
+    if (fivePerfectRef.current) fivePerfectRef.current = false; // consume the flag
+    const amount = pendingWin + extra;
     if (amount > 0) {
       setCredits(c => c + amount);
-      setMessage(`Collected ${amount} credit${amount===1?"":"s"}.`);
+      setMessage(
+        extra > 0
+          ? `Collected ${amount} credits (includes +100 perfect streak bonus).`
+          : `Collected ${amount} credit${amount===1?"":"s"}.`
+      );
     }
     // If we're in the bonus view, animate the bonus card out and bring the 5 backs in
   if (stage === "bonus") {
@@ -308,6 +326,7 @@ export default function VideoPoker() {
           setShowBonusOffer(false);
           // no single-card state to clear in new bonus
           setCanCollect(false);
+          fivePerfectRef.current = false; // ensure cleared for next round
           // Restore previous final hand and holds; animate cards back in (face-up)
           setAnimCardsIn(true);
           const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
@@ -333,6 +352,7 @@ export default function VideoPoker() {
   const startBonus = () => {
     // Hide modal immediately
     setShowBonusOffer(false);
+  fivePerfectRef.current = false;
   // Snapshot current 5-card hand and slide each card out left with stagger.
   // Hide the base grid first to avoid any one-frame layout shift.
   setHideMainCards(true);
@@ -395,13 +415,15 @@ export default function VideoPoker() {
       setPendingWin(prev => {
         const nv = prev * 2;
         setMessage(nextIdx >= 5
-          ? `Correct! That's 5 of 5. Collecting ${nv} and returning to game.`
+          ? `Correct! That's 5 of 5. Collecting ${nv + 100} (includes +100 bonus) and returning to game.`
           : `Correct! Winnings doubled to ${nv}. Choose again or collect (card ${nextIdx+1} of 5).`);
         return nv;
       });
   setCanCollect(true);
   bonusIdxRef.current = nextIdx;
       if (nextIdx >= 5) {
+        // Mark perfect streak to award +100 on collection
+        fivePerfectRef.current = true;
         const tAuto = window.setTimeout(() => { collectPending(); }, BONUS_PAUSE_MS);
         flipTimers.current.push(tAuto);
       } else {
@@ -412,6 +434,7 @@ export default function VideoPoker() {
     } else {
       setMessage("Wrong! You lost the bonus winnings.");
       setPendingWin(0);
+      fivePerfectRef.current = false;
   const tPauseLose = window.setTimeout(() => {
         setBarFadeOut(true);
         setAnimBonusOut(true);
@@ -461,11 +484,12 @@ export default function VideoPoker() {
       }
       if (e.code === "Space") {
         e.preventDefault();
-        if (stageRef.current === "bet") onDeal();
-        else if (stageRef.current === "draw") onDraw();
+        if (stageRef.current === "bet") onDealRef.current?.();
+        else if (stageRef.current === "draw") onDrawRef.current?.();
       }
       if (stageRef.current === "draw" && /^[1-5]$/.test(e.key)) {
-        toggleHold(Number(e.key) - 1);
+        e.preventDefault();
+        toggleHoldRef.current?.(Number(e.key) - 1);
       }
       // Shortcuts for the bonus offer and bonus game
       const k = e.key.toLowerCase();
