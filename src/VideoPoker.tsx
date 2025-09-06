@@ -639,6 +639,37 @@ export default function VideoPoker() {
 
   {/* Hold/Cancel per-card buttons moved directly under each card above */}
 
+  {/* Bonus status: card index, multiplier ladder, and +100 perfect badge */}
+  {stage === "bonus" && (
+    <div className="bonus-status" aria-live="polite">
+      {(() => {
+        const rev = (bonusRevealed?.filter(Boolean).length) ?? 0;
+        const currentCard = Math.min(rev + (rev < 5 ? 1 : 0), 5);
+        const steps = [2,4,8,16,32];
+        return (
+          <>
+            <div className="bonus-status-row">
+              <span className="bonus-status-text">Card {currentCard} of 5</span>
+              <div className="bonus-ladder" role="group" aria-label="Bonus multiplier ladder">
+                {steps.map((m, i) => (
+                  <div
+                    key={m}
+                    className={`bonus-step ${i < rev ? 'done' : ''} ${i === rev && rev < 5 ? 'current' : ''}`}
+                    aria-current={i === rev && rev < 5 ? 'step' : undefined}
+                    aria-label={`x${m}${i < rev ? ' achieved' : i === rev ? ' current' : ''}`}
+                  >
+                    x{m}
+                  </div>
+                ))}
+                <div className={`bonus-badge ${rev === 5 ? 'active' : ''}`} aria-label={rev===5?'+100 perfect achieved':'+100 for perfect'}>+100</div>
+              </div>
+            </div>
+          </>
+        );
+      })()}
+    </div>
+  )}
+
   {/* Bottom machine-style button bar */}
   <section className={`machine-bar ${barFadeOut?"fade-out":""} ${barFadeIn?"fade-in":""}`}>
         {stage!=="bonus" ? (

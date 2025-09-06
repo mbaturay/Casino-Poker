@@ -158,3 +158,14 @@ code{color:#cbd5e1}
 /* Temporarily hide Hold/Cancel buttons (keep in DOM for future use) */
 .hold-btn{display:none}
 
+/* Bonus status UI */
+.bonus-status{display:flex;justify-content:center;margin-top:8px}
+.bonus-status-row{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 12px}
+.bonus-status-text{font-size:13px;color:var(--text);opacity:.9}
+.bonus-ladder{display:flex;gap:8px;align-items:center}
+.bonus-step{min-width:42px;text-align:center;padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:#0f172a;color:var(--text);font-size:12px;opacity:.7}
+.bonus-step.done{background:#13233a;opacity:1;border-color:#1d3352}
+.bonus-step.current{outline:2px solid var(--accent);opacity:1}
+.bonus-badge{margin-left:6px;padding:4px 8px;border-radius:999px;background:#1f2937;border:1px solid var(--border);color:#ffe082;font-weight:700;font-size:12px;opacity:.75}
+.bonus-badge.active{background:#3a2a0a;color:#ffe08a;opacity:1;outline:2px solid #d6a200}
+
