@@ -9,7 +9,7 @@
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(var(--bg1),var(--bg2));color:var(--text)}
+body{margin:0;font-family:'Roboto', Arial, Helvetica, sans-serif;background:linear-gradient(var(--bg1),var(--bg2));color:var(--text)}
 .wrap{max-width:1100px;margin:0 auto;padding:24px}
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 h1{margin:0;font-size:28px}
@@ -20,7 +20,7 @@ h1{margin:0;font-size:28px}
 .label{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.06em}
 .value{font-weight:800;font-size:26px;line-height:1.1}
 /* Handwritten style for numbers in panels */
-.value-hand{font-family:'Kalam', 'Victor Mono', ui-monospace, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif}
+.value-hand{font-family:'Roboto', Arial, Helvetica, sans-serif}
 .panel-balance .value-hand{font-size:30px}
 /* Balance emphasis */
 .panel-balance{border-color:#2a3b66;box-shadow:0 0 0 1px rgba(52,101,255,.15), 0 10px 24px rgba(0,0,0,.25)}
@@ -45,9 +45,9 @@ h1{margin:0;font-size:28px}
 /* header corner spacer */
 .modal.modal-paytable .pt-corner{background:transparent;border:none;border-radius:0}
 /* status-like weight, casino yellow text with a subtle dark outline for contrast */
-.modal.modal-paytable .pt-colhead{background:transparent;border:none;color:var(--text);font-weight:300;text-align:center;padding:8px 4px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
-.modal.modal-paytable .pt-hand{background:transparent;border:none;color:var(--text);font-weight:300;letter-spacing:.02em;padding:0px 8px;font-family:Consolas, 'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Liberation Mono', 'Courier New', monospace}
-.modal.modal-paytable .pt-cell{background:transparent;border:none;color:var(--text);font-weight:300;text-align:right;padding:0px 20px;font-family:Consolas, 'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Liberation Mono', 'Courier New', monospace}
+.modal.modal-paytable .pt-colhead{background:transparent;border:none;color:var(--text);font-weight:300;text-align:center;padding:8px 4px;font-family:inherit}
+.modal.modal-paytable .pt-hand{background:transparent;border:none;color:var(--text);font-weight:300;letter-spacing:.02em;padding:0px 8px;font-family:inherit}
+.modal.modal-paytable .pt-cell{background:transparent;border:none;color:var(--text);font-weight:300;text-align:right;padding:0px 20px;font-family:inherit}
 /* active bet column gets a red band; keep row separators visible on top */
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
@@ -129,7 +129,7 @@ code{color:#cbd5e1}
 .hold-btn{min-width:90px}
 .machine-bar{display:flex;align-items:center;gap:16px;justify-content:center;margin-top:28px}
 .machine-bar .spacer{flex:1;max-width:180px}
-.machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:5px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:600;letter-spacing:.5px;font-family:'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
+.machine-btn{background:linear-gradient(#bfc6d1,#e5e9f0);color:#0b1220;border:none;border-radius:5px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #2d2d2d, 0 6px 14px rgba(0,0,0,.35);font-weight:600;letter-spacing:.5px;font-family:'Roboto', Arial, Helvetica, sans-serif}
 .machine-btn.bar-btn{width:var(--bar-side-w)}
 .machine-btn.primary{background:var(--primary);color:white}
 .machine-btn.bonus-red{background:#fff;color:#c8102e;border:1px solid #c8102e}
