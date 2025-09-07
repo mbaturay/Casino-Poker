@@ -179,3 +179,7 @@ code{color:#cbd5e1}
 .bonus-badge{margin-left:6px;padding:4px 10px;border-radius:999px;background:#1f2937;border:1px solid var(--border);color:#ffe082;font-weight:700;font-size:12px;opacity:.75;letter-spacing:.5px}
 .bonus-badge.active{background:#142a10;color:#b3ff9e;opacity:1;outline:2px solid #34d399}
 
+/* debug */
+.debug-panel{margin-top:12px; opacity:.85}
+.debug-panel input{background:#0b1220;color:#e5e7eb;border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+

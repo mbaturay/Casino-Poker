@@ -157,6 +157,43 @@ export default function VideoPoker() {
     flipTimers.current = [];
   };
 
+  // Dev/debug helpers
+  const isDebug = (import.meta as any)?.env?.DEV || new URLSearchParams(window.location.search).get("debug") === "1";
+  const [dbgBase, setDbgBase] = useState<number>(5);
+  const [dbgPattern, setDbgPattern] = useState<string>("RRRRR"); // e.g., RBRBB
+  const debugStartBonusNow = () => {
+    // Force a bonus state with a known base and color pattern
+    const pattern = (dbgPattern || "").toUpperCase().replace(/[^RB]/g, "").padEnd(5, "R").slice(0,5);
+    const suits: Suit[] = pattern.split("").map(ch => ch === 'R' ? 'H' : 'S') as Suit[];
+    const five: Card[] = suits.map(s => ({ rank: 2 as Rank, suit: s }));
+    clearTimers();
+    setPendingWin(dbgBase);
+    setShowBonusOffer(false);
+    fivePerfectRef.current = false;
+    heldSnapshotRef.current = [...held];
+    setRevealBusy(false);
+    setBonusBase(dbgBase);
+    setBonusCards(five);
+    setBonusRevealed([false,false,false,false,false]);
+    bonusIdxRef.current = 0;
+    setCanCollect(false);
+    setStage("bonus");
+    setHideMainCards(false);
+    setBarFadeOut(false);
+    setBarFadeIn(true);
+    setMessage(`Debug bonus: base ${dbgBase}. Use R/B to guess. (card 1 of 5)`);
+    const tBarIn = window.setTimeout(() => setBarFadeIn(false), 450);
+    flipTimers.current.push(tBarIn);
+  };
+  const debugOfferNow = () => {
+    // Force the bonus-offer stage with a given base
+    clearTimers();
+    setPendingWin(dbgBase);
+    setShowBonusOffer(true);
+    setStage("bonus-offer");
+    setMessage(`Debug offer: You win ${dbgBase}. Gamble (Red/Black)?`);
+  };
+
   const result = useMemo(() => hand.length===5 ? evaluateHand(hand) : null, [hand]);
 
   // persist credits & bet
@@ -721,6 +758,27 @@ export default function VideoPoker() {
           </>
         )}
       </section>
+
+      {isDebug && (
+        <div className="debug-panel" aria-label="Debug controls">
+          <div className="row" style={{ justifyContent: 'center', marginTop: 10 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              Base
+              <input type="number" min={1} max={4000} value={dbgBase}
+                     onChange={e=>setDbgBase(Math.max(1, Math.min(4000, Number(e.target.value)||0)))}
+                     style={{ width: 90 }} />
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              Pattern (R/B)
+              <input type="text" value={dbgPattern}
+                     onChange={e=>setDbgPattern(e.target.value)}
+                     style={{ width: 120 }} />
+            </label>
+            <button className="btn" onClick={debugOfferNow}>Debug: Offer</button>
+            <button className="btn" onClick={debugStartBonusNow}>Debug: Start Bonus</button>
+          </div>
+        </div>
+      )}
 
   
       {showPaytable && (
