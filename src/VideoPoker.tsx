@@ -98,6 +98,8 @@ export default function VideoPoker() {
   const [bonusRevealed, setBonusRevealed] = useState<boolean[] | null>(null); // which bonus cards are revealed
   const [revealBusy, setRevealBusy] = useState(false);
   const bonusIdxRef = useRef(0);
+  // Snapshot of HOLD state when entering bonus so we can restore it on exit
+  const heldSnapshotRef = useRef<boolean[] | null>(null);
   // Store the starting payout for the bonus to render actual ladder values
   const [bonusBase, setBonusBase] = useState<number | null>(null);
   // Refs to avoid stale closures for keyboard handling
@@ -333,6 +335,14 @@ export default function VideoPoker() {
           setCanCollect(false);
           fivePerfectRef.current = false; // ensure cleared for next round
           setBonusBase(null);
+          setRevealBusy(false);
+          // Clear bonus board and restore HOLDs as they were at bonus entry
+          setBonusCards(null);
+          setBonusRevealed(null);
+          if (heldSnapshotRef.current) {
+            setHeld(heldSnapshotRef.current);
+            heldSnapshotRef.current = null;
+          }
           // Restore previous final hand and holds; animate cards back in (face-up)
           setAnimCardsIn(true);
           const t2 = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
@@ -359,6 +369,9 @@ export default function VideoPoker() {
     // Hide modal immediately
     setShowBonusOffer(false);
   fivePerfectRef.current = false;
+  // Snapshot HOLD state and ensure inputs are ready
+  heldSnapshotRef.current = [...held];
+  setRevealBusy(false);
   setBonusBase(pendingWin);
   // Snapshot current 5-card hand and slide each card out left with stagger.
   // Hide the base grid first to avoid any one-frame layout shift.
@@ -450,8 +463,13 @@ export default function VideoPoker() {
           setAnimBonusOut(false);
           setStage("bet");
           setCanCollect(false);
+          setRevealBusy(false);
           setBonusCards(null);
           setBonusRevealed(null);
+          if (heldSnapshotRef.current) {
+            setHeld(heldSnapshotRef.current);
+            heldSnapshotRef.current = null;
+          }
           setAnimCardsIn(true);
           const tIn = window.setTimeout(() => setAnimCardsIn(false), CARDS_IN_MS);
           setBarFadeOut(false);
