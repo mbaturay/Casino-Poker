@@ -3,17 +3,22 @@
 	--bg1:#0b1220; --bg2:#141a26; --text:#e5e7eb; --muted:#9ca3af;
 	--panel:#1f2937; --border:#2b3344; --accent:#34d399; --warn:#f59e0b; --ok:#10b981;
 	--primary:#5865ff; /* Deal/Draw button color */
-	--dealdraw-minw:112px; /* Ensure no width shift between DEAL/DRAW */
-	--card-h:285px; /* unified playing card height */
-	--bar-side-w:128px; /* fixed width for left/right machine-bar buttons */
+	/* Responsive, height-driven sizing variables (updated at runtime) */
+	--app-h:100vh;              /* actual inner height in px (JS-corrected) */
+	--card-h:285px;             /* playing card height */
+	--cards-extra:120px;        /* extra vertical space under cards block */
+	--logo-h:133px;             /* logo height */
+	--bar-side-w:128px;         /* width for left/right machine-bar buttons */
+	--dealdraw-minw:112px;      /* Ensure no width shift between DEAL/DRAW */
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%}
 body{margin:0;font-family:'Roboto', Arial, Helvetica, sans-serif;background:linear-gradient(var(--bg1),var(--bg2));color:var(--text)}
-.wrap{max-width:1100px;margin:0 auto;padding:24px}
+/* Make the main wrapper fill the viewport height and breathe on small/tall screens */
+.wrap{max-width:1100px;margin:0 auto;min-height:var(--app-h);padding:clamp(12px, calc(var(--app-h)*0.03), 24px)}
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 h1{margin:0;font-size:28px}
-.logo{width:216px;height:144px;image-rendering:auto}
+.logo{height:var(--logo-h);width:auto;image-rendering:auto}
 .bank{display:flex;gap:12px}
 .panel{background:linear-gradient(180deg, rgba(31,41,55,.9), rgba(17,24,39,.9));border:1px solid var(--border);border-radius:14px;padding:12px 16px;min-width:130px;position:relative;overflow:hidden;text-align:center}
 .panel::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 40px rgba(255,255,255,.03)}
@@ -52,7 +57,7 @@ h1{margin:0;font-size:28px}
 .modal.modal-paytable .pt-col-active{background:var(--pt-red) !important;color:var(--text)}
 .modal.modal-paytable .pt-row-active{outline:2px solid var(--accent)}
 .status{margin:18px 0 16px;padding:8px 0;text-align:center;opacity:.95;animation:statusFade .35s ease}
-.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + 120px);padding:24px 0;overflow:visible;position:relative}
+.cards{display:flex;justify-content:space-between;align-items:center;gap:0;margin:12px 0 22px;width:100%;min-height:calc(var(--card-h) + var(--cards-extra));padding:24px 0;overflow:visible;position:relative}
 .out-overlay{display:flex;justify-content:space-between;align-items:center}
 /* keep a fixed vertical shell so swapping to overlay/spacers doesn’t nudge position */
 .cards::before{content:"";position:absolute;inset:0;pointer-events:none}
