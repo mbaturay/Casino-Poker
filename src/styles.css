@@ -9,7 +9,13 @@
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%}
-body{margin:0;font-family:'Roboto', Arial, Helvetica, sans-serif;background:linear-gradient(var(--bg1),var(--bg2));color:var(--text)}
+body{margin:0;font-family:'Roboto', Arial, Helvetica, sans-serif;background:linear-gradient(var(--bg1),var(--bg2));color:var(--text);overflow:hidden}
+/* Full-viewport host that centers scaled content and prevents scrollbars */
+.viewport{position:relative;width:100vw;height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:flex-start}
+.scaled-shell{display:none}
+.scaled-content{transform-origin:top center;position:relative;}
+/* Ensure overlays position relative to scaled content so they scale too */
+.scaled-content .modal-overlay{position:absolute}
 .wrap{max-width:1100px;margin:0 auto;padding:24px}
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 h1{margin:0;font-size:28px}
