@@ -489,7 +489,7 @@ export default function VideoPoker() {
         flipTimers.current.push(tReady);
       }
     } else {
-      setMessage("Wrong! You lost the bonus winnings.");
+      setMessage("You lost! Better luck next time!");
       setPendingWin(0);
       fivePerfectRef.current = false;
   setBonusBase(null);
