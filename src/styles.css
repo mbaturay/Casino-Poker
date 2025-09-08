@@ -16,6 +16,11 @@ body{margin:0;font-family:'Roboto', Arial, Helvetica, sans-serif;background:line
 .scaled-content{transform-origin:top center;position:relative;}
 /* Ensure overlays position relative to scaled content so they scale too */
 .scaled-content .modal-overlay{position:absolute}
+/* Explicit stacking to keep debug panel above everything */
+.machine-bar{position:relative; z-index:10}
+.bonus-status{position:relative; z-index:15}
+.playfield-overlay{z-index:30}
+.modal-overlay{z-index:50}
 .wrap{max-width:1100px;margin:0 auto;padding:24px}
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 h1{margin:0;font-size:28px}
@@ -186,6 +191,6 @@ code{color:#cbd5e1}
 .bonus-badge.active{background:#142a10;color:#b3ff9e;opacity:1;outline:2px solid #34d399}
 
 /* debug */
-.debug-panel{margin-top:12px; opacity:.85}
+.debug-panel{margin-top:12px; opacity:.85; position:absolute; left:50%; transform:translateX(-50%); bottom:8px; z-index:100; pointer-events:auto}
 .debug-panel input{background:#0b1220;color:#e5e7eb;border:1px solid var(--border);border-radius:8px;padding:6px 8px}
 
