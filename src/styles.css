@@ -191,6 +191,6 @@ code{color:#cbd5e1}
 .bonus-badge.active{background:#142a10;color:#b3ff9e;opacity:1;outline:2px solid #34d399}
 
 /* debug */
-.debug-panel{margin-top:12px; opacity:.85; position:absolute; left:50%; transform:translateX(-50%); bottom:8px; z-index:100; pointer-events:auto}
+.debug-panel{opacity:.9; position:absolute; right:8px; top:16px; z-index:100; pointer-events:auto}
 .debug-panel input{background:#0b1220;color:#e5e7eb;border:1px solid var(--border);border-radius:8px;padding:6px 8px}
 
